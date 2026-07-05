@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>そろばん帳場 - 簿記3級稽古</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E6ECDD; --paper2:#DCE4D0; --line:#AABF9E;
+    --ink:#1B2A41; --ink-soft:#4A5A6B;
+    --hanko:#B23A2E; --hanko-dark:#8C2C22;
+    --gold:#B8944D; --gold-light:#D8BC7B;
+    --navy:#16202B; --navy2:#202E3D;
+    --paper-white:#F3F1E7; --good:#3E6B4F; --ai:#5B4E8C;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    background:var(--paper); color:var(--ink); min-height:100vh;
+    background-image:repeating-linear-gradient(var(--paper) 0px, var(--paper) 27px, var(--line) 27px, var(--line) 28px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:640px;margin:0 auto;min-height:100vh;padding:0 0 48px;position:relative;}
+  header.top{
+    background:var(--navy);
+    background-image:linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%);
+    color:var(--paper-white); padding:22px 20px 20px;
+    position:sticky;top:0;z-index:20; box-shadow:0 4px 14px rgba(0,0,0,.25);
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand .kanji{font-family:'Shippori Mincho', serif;font-weight:800;font-size:22px;letter-spacing:.08em;}
+  .brand .sub{font-size:11px;color:var(--gold-light);letter-spacing:.14em;}
+  .backbtn{
+    background:none;border:1px solid rgba(243,241,231,.35);color:var(--paper-white);
+    border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer;margin-top:10px;font-family:inherit;
+  }
+  .backbtn:hover{border-color:var(--gold-light);color:var(--gold-light);}
+  main{padding:22px 20px 10px;}
+
+  .soroban{display:flex;align-items:center;gap:6px;background:#2A1B10;border-radius:10px;padding:10px 12px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4);}
+  .bead-row{display:flex;gap:5px;flex-wrap:wrap;}
+  .bead{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #7d6134, var(--gold-light) 40%, var(--gold) 70%, #7d6134);display:inline-block;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,.5);}
+  .bead.dim{background:radial-gradient(circle at 35% 30%, #3a3226, #5a5140 40%, #46402f 70%);opacity:.55;}
+
+  .hero{background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:20px 18px;margin-bottom:18px;position:relative;box-shadow:0 1px 0 var(--line);}
+  .hero:before{content:"";position:absolute;top:14px;right:14px;width:52px;height:52px;border:3px solid var(--hanko);border-radius:50%;opacity:.85;transform:rotate(-8deg);}
+  .hero h1{font-family:'Shippori Mincho', serif;font-size:19px;margin:0 0 6px;color:var(--ink);}
+  .hero p{font-size:13px;color:var(--ink-soft);line-height:1.7;margin:0;max-width:75%;}
+
+  .stats-line{display:flex;gap:14px;margin:14px 0 20px;font-size:12px;color:var(--ink-soft);flex-wrap:wrap;}
+  .stats-line b{color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:14px;}
+
+  .mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px;}
+  .mode-card{background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:14px 12px;cursor:pointer;text-align:left;font-family:inherit;transition:transform .15s ease, box-shadow .15s ease;position:relative;overflow:hidden;}
+  .mode-card:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(27,42,65,.12);}
+  .mode-card .tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.1em;}
+  .mode-card h3{font-family:'Shippori Mincho',serif;font-size:15px;margin:6px 0 6px;color:var(--ink);}
+  .mode-card p{font-size:11px;color:var(--ink-soft);line-height:1.5;margin:0;}
+
+  .section-title{font-family:'Shippori Mincho',serif;font-size:14px;color:var(--ink);margin:22px 0 10px;display:flex;align-items:center;gap:8px;}
+  .section-title:before{content:"";width:16px;height:1px;background:var(--hanko);display:inline-block;}
+
+  .cat-list{display:flex;flex-direction:column;gap:8px;}
+  .cat-row{display:flex;align-items:center;justify-content:space-between;background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:13px;}
+  .cat-row .name{color:var(--ink);}
+  .cat-row .ratio{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);}
+  .progress-mini{width:70px;height:5px;background:#D2DAC5;border-radius:3px;overflow:hidden;margin-left:10px;}
+  .progress-mini i{display:block;height:100%;background:var(--good);}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .chip{border:1px solid var(--line);background:var(--paper-white);color:var(--ink-soft);border-radius:16px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit;}
+  .chip.active{background:var(--navy);color:var(--paper-white);border-color:var(--navy);}
+
+  .qcard{background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:20px 18px 18px;margin-bottom:16px;}
+  .qmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
+  .qmeta .catname{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);background:#F4EBD6;padding:3px 9px;border-radius:3px;border:1px solid #E3D2A4;}
+  .qmeta .aitag{font-family:'JetBrains Mono',monospace;font-size:11px;color:#fff;background:var(--ai);padding:3px 9px;border-radius:3px;}
+  .qmeta .counter{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);}
+  .qtext{font-size:15.5px;line-height:1.8;color:var(--ink);margin-bottom:16px;white-space:pre-wrap;}
+  .choices{display:flex;flex-direction:column;gap:9px;}
+  .choice{text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:4px;padding:11px 14px;font-size:14px;cursor:pointer;color:var(--ink);font-family:inherit;display:flex;gap:10px;align-items:flex-start;}
+  .choice .lab{font-family:'JetBrains Mono',monospace;color:var(--ink-soft);flex-shrink:0;}
+  .choice:hover:not(.locked){border-color:var(--gold);}
+  .choice.correct{background:#E4EFE2;border-color:var(--good);}
+  .choice.wrong{background:#F3E2DF;border-color:var(--hanko);}
+  .choice.locked{cursor:default;}
+
+  .input-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+  .input-row input[type=text],.input-row input[type=number]{
+    flex:1;font-family:'JetBrains Mono',monospace;font-size:16px;padding:10px 12px;
+    border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);
+  }
+  .input-row input.locked-input{background:#eee;color:var(--ink-soft);}
+  .input-row .unit{font-size:13px;color:var(--ink-soft);}
+
+  .explain{margin-top:14px;padding:12px 14px;border-left:3px solid var(--gold);background:#F6F1E4;font-size:13px;line-height:1.7;color:var(--ink-soft);display:none;}
+  .explain.show{display:block;}
+  .explain b{color:var(--ink);}
+
+  .qnav{display:flex;justify-content:flex-end;margin-top:14px;gap:8px;flex-wrap:wrap;}
+  .btn{font-family:inherit;border:none;border-radius:4px;padding:10px 20px;font-size:13px;cursor:pointer;background:var(--navy);color:var(--paper-white);}
+  .btn:hover{background:var(--navy2);}
+  .btn.ghost{background:none;border:1px solid var(--line);color:var(--ink-soft);}
+  .btn.hanko-btn{background:var(--hanko);}
+  .btn.hanko-btn:hover{background:var(--hanko-dark);}
+  .btn.ai-btn{background:var(--ai);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  .exam-head{display:flex;justify-content:space-between;align-items:center;background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:12px 16px;margin-bottom:16px;}
+  .timer{font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--hanko);font-weight:700;}
+  .timer.low{animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .dots{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:#C7D0BC;}
+  .dot.answered{background:var(--gold);}
+  .dot.current{outline:2px solid var(--navy);outline-offset:2px;}
+
+  .result-hero{text-align:center;padding:26px 18px;background:var(--paper-white);border:1px solid var(--line);border-radius:4px;margin-bottom:18px;}
+  .result-score{font-family:'Shippori Mincho',serif;font-size:42px;color:var(--ink);}
+  .result-score span{font-size:20px;color:var(--ink-soft);}
+  .result-label{font-size:12px;color:var(--gold);letter-spacing:.12em;margin-bottom:4px;}
+  table.breakdown{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px;}
+  table.breakdown th, table.breakdown td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;}
+  table.breakdown th{color:var(--ink-soft);font-weight:500;font-size:11px;}
+  table.breakdown td.num{font-family:'JetBrains Mono',monospace;text-align:right;}
+  .history-item{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);padding:8px 0;border-bottom:1px solid var(--line);}
+  .history-item b{color:var(--ink);font-family:'JetBrains Mono',monospace;}
+  .loading{text-align:center;padding:40px;color:var(--ink-soft);font-size:13px;}
+  .spinner-line{font-size:12px;color:var(--ai);font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+<div id="app" class="app"><div class="loading">読み込み中…</div></div>
+
+<script>
+
+/* =========================================================
+   window.storage polyfill (for standalone deployment)
+   Claude.ai の Artifact 内蔵ストレージの代わりに、
+   ブラウザの localStorage を使って同じインターフェースを再現する。
+   ========================================================= */
+if (!window.storage) {
+  window.storage = {
+    async get(key) {
+      const v = localStorage.getItem(key);
+      return v === null ? null : { key, value: v };
+    },
+    async set(key, value) {
+      localStorage.setItem(key, value);
+      return { key, value };
+    },
+    async delete(key) {
+      localStorage.removeItem(key);
+      return { key, deleted: true };
+    },
+    async list(prefix) {
+      const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix));
+      return { keys };
+    }
+  };
+}
+
+/* =========================================================
+   問題データ
+   ========================================================= */
+const QUESTIONS = [
+  {id:1,cat:"genkin",catName:"現金・預金",type:"mcq",q:"取引先から売掛金¥50,000を同社振出しの小切手で受け取った。このときの借方科目として正しいものはどれか。",choices:["現金","当座預金","受取手形","売掛金"],ans:0,exp:"他人振出しの小切手を受け取った場合は、簿記上ただちに使える<b>現金</b>として処理する。"},
+  {id:2,cat:"genkin",catName:"現金・預金",type:"mcq",q:"現金の実際有高が帳簿残高より¥3,000不足していたため、原因不明のまま決算をむかえた。決算時の処理として正しいものはどれか。",choices:["現金過不足を雑益に振り替える","現金過不足を雑損に振り替える","現金過不足をそのまま繰り越す","仮払金に振り替える"],ans:1,exp:"決算日までに原因が判明しない現金不足額は<b>雑損(雑損失)</b>として処理する。"},
+  {id:3,cat:"genkin",catName:"現金・預金",type:"mcq",q:"小口現金係から、消耗品費¥2,000、通信費¥1,500の支払報告を受け、ただちに同額を小切手で補給した。仕訳の貸方科目として正しいものはどれか。",choices:["現金","当座預金","小口現金","前払金"],ans:1,exp:"小切手を振り出して補給する場合、貸方は<b>当座預金</b>となる(定額資金前渡制度)。"},
+  {id:4,cat:"genkin",catName:"現金・預金",type:"mcq",q:"当座預金の残高を超えて小切手を振り出した場合に備え、銀行とあらかじめ結んでおく契約を何というか。",choices:["当座借越契約","信用取引契約","手形割引契約","当座貸越契約"],ans:3,exp:"銀行との間で結ぶこの契約を<b>当座借越契約(当座貸越契約)</b>という。"},
+  {id:5,cat:"urikake",catName:"売掛金・買掛金",type:"mcq",q:"商品¥80,000を掛けで販売した。このときの仕訳の借方・貸方の組み合わせとして正しいものはどれか。",choices:["借方:仕入 貸方:買掛金","借方:売掛金 貸方:売上","借方:売上 貸方:売掛金","借方:買掛金 貸方:仕入"],ans:1,exp:"商品を掛けで<b>販売</b>したときは、借方に売掛金、貸方に売上を計上する。"},
+  {id:6,cat:"urikake",catName:"売掛金・買掛金",type:"input",q:"クレジット払いの条件で商品¥6,000を売り上げた。信販会社への手数料は販売代金の2%である。支払手数料として計上する金額はいくらか。",answer:120,unit:"円",exp:"6,000円×2%=<b>120円</b>。クレジット売掛金は6,000-120=5,880円で計上する。"},
+  {id:7,cat:"urikake",catName:"売掛金・買掛金",type:"mcq",q:"得意先が倒産し、前期に発生した売掛金¥40,000(貸倒引当金設定済み)が回収不能となった。このときの借方科目として最も適切なものはどれか。",choices:["貸倒損失","貸倒引当金","雑損","売掛金"],ans:1,exp:"設定済みの貸倒引当金の範囲内であれば、借方は<b>貸倒引当金</b>を取り崩す。"},
+  {id:8,cat:"tegata",catName:"手形",type:"mcq",q:"商品¥60,000を売り上げ、代金として同社振出しの約束手形を受け取った。借方科目として正しいものはどれか。",choices:["支払手形","受取手形","売掛金","現金"],ans:1,exp:"約束手形を<b>受け取った</b>側は受取手形(資産)を計上する。"},
+  {id:9,cat:"tegata",catName:"手形",type:"mcq",q:"仕入先に対する買掛金¥45,000の支払いのために約束手形を振り出した。貸方科目として正しいものはどれか。",choices:["受取手形","支払手形","買掛金","現金"],ans:1,exp:"手形を<b>振り出した</b>側は支払手形(負債)を計上する。"},
+  {id:10,cat:"tegata",catName:"手形",type:"mcq",q:"所有する約束手形¥100,000を満期日前に銀行で割り引き、割引料¥2,000を差し引かれた手取金が当座預金に入金された。借方に計上する割引料の勘定科目はどれか。",choices:["支払利息","手形売却損","雑損","支払手数料"],ans:1,exp:"手形の割引にともなう割引料は<b>手形売却損</b>として処理する。"},
+  {id:11,cat:"tegata",catName:"手形",type:"mcq",q:"電子債権記録機関を通じて発生記録を行った債権を受け取った側が計上する勘定科目はどれか。",choices:["受取手形","電子記録債権","支払手形","電子記録債務"],ans:1,exp:"電子記録された債権は<b>電子記録債権</b>として処理する。"},
+  {id:12,cat:"kasidaore",catName:"貸倒れ",type:"input",q:"決算にあたり、売掛金期末残高¥500,000に対して2%の貸倒引当金を差額補充法で設定する。すでに貸倒引当金残高が¥4,000ある場合、繰入額はいくらか。",answer:6000,unit:"円",exp:"設定額は500,000×2%=10,000。既存残高4,000を差し引いた<b>6,000円</b>を繰り入れる(差額補充法)。"},
+  {id:13,cat:"kasidaore",catName:"貸倒れ",type:"mcq",q:"当期に発生した売掛金が当期中に貸し倒れた場合、借方に計上する科目として正しいものはどれか。",choices:["貸倒引当金","貸倒損失","雑損","貸倒引当金繰入"],ans:1,exp:"当期発生債権の貸倒れは、引当金の対象外のため<b>貸倒損失</b>として処理する。"},
+  {id:14,cat:"kasidaore",catName:"貸倒れ",type:"mcq",q:"前期発生の売掛金¥100,000が貸し倒れたが、貸倒引当金残高が¥80,000しかない場合、超過額¥20,000の借方科目はどれか。",choices:["貸倒引当金","貸倒損失","雑損","貸倒引当金繰入"],ans:1,exp:"引当金残高を超える部分は<b>貸倒損失</b>として処理する。"},
+  {id:15,cat:"yukashoken",catName:"有価証券",type:"input",q:"売買目的でA社株式100株を1株¥1,200で購入し、購入手数料¥3,000とあわせて小切手を振り出して支払った。有価証券の取得原価はいくらか。",answer:123000,unit:"円",exp:"取得原価は購入代価に付随費用(手数料)を加算する。120,000+3,000=<b>123,000円</b>。"},
+  {id:16,cat:"yukashoken",catName:"有価証券",type:"mcq",q:"売買目的有価証券(帳簿価額¥80,000)を¥95,000で売却し、代金は当座預金に振り込まれた。この際に生じる貸方科目はどれか。",choices:["有価証券売却損","有価証券売却益","有価証券評価益","雑益"],ans:1,exp:"売却額が帳簿価額を上回るため差額15,000は<b>有価証券売却益</b>となる。"},
+  {id:17,cat:"kotei",catName:"固定資産",type:"input",q:"備品¥500,000を購入し、設置費用¥20,000とあわせて小切手で支払った。取得原価はいくらとして計上するか。",answer:520000,unit:"円",exp:"固定資産の取得原価には購入代価に付随費用(設置費用等)を含める。500,000+20,000=<b>520,000円</b>。"},
+  {id:18,cat:"kotei",catName:"固定資産",type:"input",q:"取得原価¥300,000、残存価額ゼロ、耐用年数5年の備品について、定額法により1年分の減価償却費を計上する。金額はいくらか。",answer:60000,unit:"円",exp:"定額法の年間償却額=取得原価÷耐用年数=300,000÷5=<b>60,000円</b>。"},
+  {id:19,cat:"kotei",catName:"固定資産",type:"mcq",q:"間接法で記帳している備品(取得原価¥400,000、減価償却累計額¥240,000)を¥100,000で売却し代金は現金で受け取った。生じる損益として正しいものはどれか。",choices:["売却益¥60,000","売却損¥60,000","売却損¥140,000","売却益¥140,000"],ans:1,exp:"帳簿価額=400,000-240,000=160,000。売却額100,000との差額<b>60,000円が売却損</b>。"},
+  {id:20,cat:"kotei",catName:"固定資産",type:"mcq",q:"建物の修繕を行い代金¥80,000を現金で支払った。このうち¥50,000は建物の価値を高める改良(資本的支出)、残額は原状回復のための支出(収益的支出)であった。収益的支出分の仕訳科目はどれか。",choices:["建物","修繕費","消耗品費","雑費"],ans:1,exp:"原状回復のための支出(収益的支出)は<b>修繕費</b>として費用処理する。資本的支出分は建物の取得原価に加算する。"},
+  {id:21,cat:"keika",catName:"経過勘定",type:"mcq",q:"決算にあたり、支払家賃のうち翌期分¥12,000を前払処理する。借方科目として正しいものはどれか。",choices:["前払家賃","未払家賃","前受家賃","支払家賃"],ans:0,exp:"当期に支払った費用のうち次期分を繰り延べるため、借方は<b>前払家賃(資産)</b>を計上し、支払家賃を減額する。"},
+  {id:22,cat:"keika",catName:"経過勘定",type:"mcq",q:"決算日現在、借入金の利息のうち当期未払分¥5,000がある。この見越し処理での貸方科目として正しいものはどれか。",choices:["前払利息","未払利息","前受利息","未収利息"],ans:1,exp:"当期分の費用でまだ支払っていない分は、貸方に<b>未払利息(負債)</b>を計上して費用を見越し計上する。"},
+  {id:23,cat:"keika",catName:"経過勘定",type:"mcq",q:"地代を受け取る契約で、当期にすでに受け取った地代のうち次期分¥8,000が含まれていた。決算整理仕訳の借方科目はどれか。",choices:["受取地代","前受地代","未収地代","前払地代"],ans:0,exp:"次期分を繰り延べるため、借方は<b>受取地代</b>を減額し、貸方に前受地代(負債)を計上する。"},
+  {id:24,cat:"keika",catName:"経過勘定",type:"mcq",q:"当期の家賃のうち未収分¥6,000があることが決算で判明した。借方に計上する科目はどれか。",choices:["前受家賃","未収家賃","前払家賃","受取家賃"],ans:1,exp:"当期分の収益で未回収の分は、借方に<b>未収家賃(資産)</b>を計上して収益を見越し計上する。"},
+  {id:25,cat:"shihon",catName:"資本・引出金",type:"mcq",q:"個人事業主が事業用の現金¥30,000を家計費として引き出した。借方科目として正しいものはどれか。",choices:["資本金","引出金","給料","現金"],ans:1,exp:"事業主が私用のために資金を引き出した場合、<b>引出金(資本金のマイナス勘定)</b>で処理する。"},
+  {id:26,cat:"shihon",catName:"資本・引出金",type:"mcq",q:"決算にあたり、引出金勘定の残高¥50,000を整理する。正しい仕訳の貸方科目はどれか。",choices:["引出金","資本金","現金","損益"],ans:0,exp:"決算整理で引出金残高を資本金勘定に振り替える。借方:資本金/貸方:<b>引出金</b>。"},
+  {id:27,cat:"denpyo",catName:"伝票・帳簿",type:"mcq",q:"3伝票制において、商品を掛けで仕入れた取引を起票する伝票として正しいものはどれか。",choices:["入金伝票","出金伝票","振替伝票","仕入伝票"],ans:2,exp:"現金の収支をともなわない掛け取引は<b>振替伝票</b>に起票する。"},
+  {id:28,cat:"denpyo",catName:"伝票・帳簿",type:"mcq",q:"仕訳帳に記入された取引を、勘定科目ごとに集計・記録する帳簿を何というか。",choices:["総勘定元帳","補助簿","試算表","精算表"],ans:0,exp:"仕訳帳の記録を勘定口座ごとに転記する帳簿を<b>総勘定元帳</b>という。"},
+  {id:29,cat:"denpyo",catName:"伝票・帳簿",type:"mcq",q:"得意先ごとの売掛金の増減を管理するために用いる補助簿はどれか。",choices:["仕入帳","売上帳","売掛金元帳(得意先元帳)","固定資産台帳"],ans:2,exp:"得意先別に売掛金の明細を記録する補助簿を<b>売掛金元帳(得意先元帳)</b>という。"},
+  {id:30,cat:"denpyo",catName:"伝票・帳簿",type:"mcq",q:"3伝票制において、掛け代金を現金で回収した取引に用いる伝票として正しいものはどれか。",choices:["出金伝票","入金伝票","振替伝票","仕入伝票"],ans:1,exp:"現金を受け取る取引は<b>入金伝票</b>に起票する。"},
+  {id:31,cat:"denpyo",catName:"伝票・帳簿",type:"input",q:"ある日の入金伝票の合計額が¥4,000、出金伝票の合計額が¥2,500であった。この日の仕訳日計表における現金勘定の借方合計はいくらか(入金伝票分)。",answer:4000,unit:"円",exp:"仕訳日計表の現金勘定の借方には、その日の<b>入金伝票の合計額(4,000円)</b>を記入する。"},
+  {id:32,cat:"kessan",catName:"試算表・精算表",type:"mcq",q:"総勘定元帳の各勘定口座の借方合計・貸方合計を一覧にした表を何というか。",choices:["合計試算表","残高試算表","合計残高試算表","精算表"],ans:0,exp:"各勘定の借方合計と貸方合計を集めた表を<b>合計試算表</b>という。"},
+  {id:33,cat:"kessan",catName:"試算表・精算表",type:"mcq",q:"精算表の損益計算書欄で、収益合計が費用合計を上回っている場合、その差額はどこに記入するか。",choices:["損益計算書借方に当期純利益として記入","損益計算書貸方に当期純利益として記入","貸借対照表貸方に当期純損失として記入","仕訳しない"],ans:0,exp:"収益>費用の場合、差額は当期純利益として<b>損益計算書欄の借方</b>と貸借対照表欄の貸方に記入する。"},
+  {id:34,cat:"kessan",catName:"試算表・精算表",type:"mcq",q:"期末商品棚卸高を仕入勘定へ振り替える決算整理仕訳のうち、期首商品棚卸高を仕入に加算する仕訳として正しいものはどれか。",choices:["借方:仕入 貸方:繰越商品","借方:繰越商品 貸方:仕入","借方:仕入 貸方:売上原価","借方:売上原価 貸方:繰越商品"],ans:0,exp:"期首商品棚卸高を仕入原価に含めるため、借方に<b>仕入</b>、貸方に繰越商品を計上する。"},
+  {id:35,cat:"kessan",catName:"試算表・精算表",type:"mcq",q:"収益・費用の各勘定残高を集計して当期純利益(または純損失)を算定するために用いる勘定はどれか。",choices:["繰越利益剰余金","資本金","損益勘定","残高勘定"],ans:2,exp:"決算にあたり収益・費用の各勘定を振り替えて集計する勘定を<b>損益勘定</b>という。"},
+  {id:36,cat:"kessan",catName:"試算表・精算表",type:"input",q:"先入先出法で商品有高帳を記帳している。前月繰越40個@100円、当月仕入60個@120円、当月に80個を販売した。この払出(売上原価)の合計金額はいくらか。",answer:8800,unit:"円",exp:"先に仕入れた分から払い出す。40個@100円=4,000円+40個@120円=4,800円、合計<b>8,800円</b>。"},
+  {id:37,cat:"kessan",catName:"試算表・精算表",type:"mcq",q:"移動平均法の特徴として正しいものはどれか。",choices:["仕入のつど平均単価を計算し直す","先に仕入れたものから先に払い出したとみなす","後から仕入れたものから先に払い出したとみなす","期末に一括して平均単価を計算する"],ans:0,exp:"<b>移動平均法</b>は仕入れのたびに残高全体の平均単価を計算し直す方法。"},
+  {id:38,cat:"sonota",catName:"その他費用・収益",type:"mcq",q:"事業所で使用する固定資産税¥15,000を現金で納付した。借方科目として正しいものはどれか。",choices:["租税公課","法人税等","支払手数料","雑費"],ans:0,exp:"固定資産税や印紙税など事業に関する税金は<b>租税公課</b>で処理する。"},
+  {id:39,cat:"sonota",catName:"その他費用・収益",type:"mcq",q:"事務用のコピー用紙¥4,000を購入し現金で支払った。計上する勘定科目として最も適切なものはどれか。",choices:["消耗品費","備品","仕入","雑費"],ans:0,exp:"短期間で消費する事務用品などの少額な物品費用は<b>消耗品費</b>で処理する。"},
+  {id:40,cat:"sonota",catName:"その他費用・収益",type:"mcq",q:"従業員に給料¥250,000を支払うにあたり、源泉所得税¥15,000を差し引いた残額を現金で支払った。源泉所得税分の貸方科目はどれか。",choices:["預り金","未払金","立替金","給料"],ans:0,exp:"従業員から一時的に預かる源泉所得税は<b>預り金(所得税預り金)</b>として処理する。"},
+  {id:41,cat:"sonota",catName:"その他費用・収益",type:"mcq",q:"商品発送にともなう発送運賃¥3,000を現金で支払った(自己負担)。借方科目として正しいものはどれか。",choices:["発送費","仕入","支払運賃(仕入諸掛)","立替金"],ans:0,exp:"販売にともない自己負担で支払う運賃は<b>発送費</b>で処理する。"},
+  {id:42,cat:"sonota",catName:"その他費用・収益",type:"mcq",q:"従業員が負担すべき社会保険料を給料から天引きし、会社負担分とあわせて納付するときに使う、会社負担分の勘定科目はどれか。",choices:["社会保険料預り金","法定福利費","給料","立替金"],ans:1,exp:"会社が負担する社会保険料は<b>法定福利費</b>(費用)として処理する。従業員負担分は社会保険料預り金。"},
+  {id:43,cat:"sonota",catName:"その他費用・収益",type:"mcq",q:"他店発行の商品券を代金として受け取った場合に計上する勘定科目はどれか。",choices:["受取商品券","商品券","前受金","売掛金"],ans:0,exp:"他社が発行した商品券を受け取った場合は<b>受取商品券</b>(資産)として処理する。"},
+  {id:44,cat:"sonota",catName:"その他費用・収益",type:"input",q:"事務所の賃借にあたり、敷金(差入保証金)¥50,000を現金で支払った。資産として計上する差入保証金の金額はいくらか。",answer:50000,unit:"円",exp:"退去時に返還される敷金は費用ではなく<b>差入保証金(資産)</b>として計上する。"},
+  {id:45,cat:"sonota",catName:"その他費用・収益(訂正仕訳)",type:"mcq",q:"支払家賃¥10,000を現金で支払った際、誤って借方・貸方を逆に仕訳してしまった。この誤りを訂正するために、支払家賃(借方)に計上すべき金額はいくらか。",choices:["¥10,000","¥20,000","¥5,000","訂正不要"],ans:1,exp:"逆仕訳を取り消して正しい仕訳を追加するため、訂正仕訳では同額を重ねて借方計上し<b>2倍の20,000円</b>となる。"},
+  {id:46,cat:"kouguchi",catName:"小口現金",type:"mcq",q:"用度係にあらかじめ一定額を前渡ししておき、一定期間ごとに使った金額と同額を補給する制度を何というか。",choices:["インプレストシステム(定額資金前渡制度)","洗替法","差額補充法","三分法"],ans:0,exp:"一定額を維持するよう前渡しし、使用額を補給する制度を<b>インプレストシステム(定額資金前渡制度)</b>という。"},
+  {id:47,cat:"kouguchi",catName:"小口現金",type:"input",q:"定額資金前渡制度により、週始めに小口現金¥5,000を小切手で前渡しした。週末に旅費交通費¥2,000、消耗品費¥800の支払報告を受けた(即時補給はまだ行っていない)。週末時点の小口現金の帳簿残高はいくらか。",answer:2200,unit:"円",exp:"5,000円-2,000円-800円=<b>2,200円</b>。まだ補給前なので、使った分だけ残高が減っている。"},
+  {id:48,cat:"kabushiki",catName:"株式・剰余金",type:"input",q:"株式会社の設立にあたり、株式50株を1株¥1,000で発行し、払込金額の全額を当座預金に受け入れた。原則として資本金に計上する金額はいくらか。",answer:50000,unit:"円",exp:"払込金額の全額を資本金とするのが原則。50株×1,000円=<b>50,000円</b>。"},
+  {id:49,cat:"kabushiki",catName:"株式・剰余金",type:"mcq",q:"株式の払込金額のうち、資本金に計上しない部分がある場合、その金額を計上する純資産の項目はどれか。",choices:["資本準備金","利益準備金","繰越利益剰余金","引出金"],ans:0,exp:"資本金としなかった部分は<b>資本準備金</b>として処理する。"},
+  {id:50,cat:"kabushiki",catName:"株式・剰余金",type:"mcq",q:"繰越利益剰余金を財源に株主配当を行う際、会社法により積み立てが義務づけられている準備金はどれか。",choices:["資本準備金","利益準備金","任意積立金","別途積立金"],ans:1,exp:"配当を行う場合、一定額を<b>利益準備金</b>として積み立てることが会社法で義務づけられている。"},
+  {id:51,cat:"kabushiki",catName:"株式・剰余金",type:"mcq",q:"決算の結果算定された当期純利益を振り替える勘定として正しいものはどれか。",choices:["損益勘定から資本金勘定へ","損益勘定から繰越利益剰余金勘定へ","資本金勘定から損益勘定へ","引出金勘定から資本金勘定へ"],ans:1,exp:"株式会社では当期純利益は損益勘定から<b>繰越利益剰余金勘定</b>へ振り替える。"},
+  {id:52,cat:"zeikin",catName:"法人税等・消費税",type:"mcq",q:"税抜方式で処理している。商品を掛けで販売し、消費税を受け取った際に貸方に計上する(負債の)勘定科目はどれか。",choices:["仮払消費税","仮受消費税","未払消費税","租税公課"],ans:1,exp:"税抜方式で販売時に受け取った消費税は<b>仮受消費税</b>(負債)として計上する。"},
+  {id:53,cat:"zeikin",catName:"法人税等・消費税",type:"input",q:"決算にあたり、仮払消費税¥3,000、仮受消費税¥8,000であった。税抜方式による場合、納付すべき消費税額(未払消費税)はいくらか。",answer:5000,unit:"円",exp:"仮受消費税8,000円-仮払消費税3,000円=<b>5,000円</b>を未払消費税として計上する。"},
+  {id:54,cat:"zeikin",catName:"法人税等・消費税",type:"mcq",q:"法人税等の中間申告にあたり支払った金額を計上する勘定科目として正しいものはどれか。",choices:["未払法人税等","仮払法人税等","法人税等","租税公課"],ans:1,exp:"中間納付額は確定申告まで一時的に<b>仮払法人税等</b>(資産)として処理する。"},
+  {id:55,cat:"zenkai",catName:"簿記の全体像",type:"mcq",q:"総勘定元帳の記録をもとに、借方合計と貸方合計を一覧にして転記ミスがないかを確認する表を何というか。",choices:["精算表","試算表","損益計算書","商品有高帳"],ans:1,exp:"転記の正確性を確認するために作成する表を<b>試算表</b>という。"},
+  {id:56,cat:"zenkai",catName:"簿記の全体像",type:"mcq",q:"決算整理を経て損益計算書・貸借対照表の金額を求めるまでの過程をまとめたワークシートを何というか。",choices:["試算表","精算表","仕訳日計表","商品有高帳"],ans:1,exp:"決算整理前の試算表から財務諸表の作成までをまとめた表を<b>精算表</b>という。"},
+  {id:57,cat:"zenkai",catName:"簿記の全体像",type:"mcq",q:"会計期間の最終日(締め日)のことを何というか。",choices:["期首","決算日(期末)","会計期間","締切日"],ans:1,exp:"会計期間の最終日を<b>決算日(期末)</b>という。初日は期首という。"},
+];
+
+const VOCAB = [
+  {id:1,term:"仕訳",def:"取引を借方・貸方に分けて記録する手続き"},
+  {id:2,term:"転記",def:"仕訳帳の記録を総勘定元帳の各勘定口座に書き写すこと"},
+  {id:3,term:"総勘定元帳",def:"勘定科目ごとに金額を集計・記録する帳簿"},
+  {id:4,term:"試算表",def:"総勘定元帳の借方・貸方合計を一覧にして転記ミスを確認する表"},
+  {id:5,term:"精算表",def:"試算表から決算整理を経て損益計算書・貸借対照表を作成する過程をまとめた表"},
+  {id:6,term:"決算整理",def:"当期の損益を正しく計算するために行う修正手続き"},
+  {id:7,term:"期首",def:"会計期間のはじまりの日"},
+  {id:8,term:"決算日(期末)",def:"会計期間の最後の日"},
+  {id:9,term:"会計期間",def:"損益や財産の状況を計算する一定の期間"},
+  {id:10,term:"三分法",def:"商品売買を仕入・売上・繰越商品の3つの勘定で処理する方法"},
+  {id:11,term:"差額補充法",def:"貸倒引当金の設定額と既存残高の差額のみを繰り入れる方法"},
+  {id:12,term:"先入先出法",def:"先に仕入れた商品から先に払い出したと仮定して単価を計算する方法"},
+  {id:13,term:"移動平均法",def:"仕入れのたびに残高全体の平均単価を計算し直す方法"},
+  {id:14,term:"資本的支出",def:"固定資産の価値を高める支出で、取得原価に加算する"},
+  {id:15,term:"収益的支出",def:"固定資産の原状を回復するための支出で、費用として処理する"},
+  {id:16,term:"インプレストシステム",def:"小口現金などを一定額に保つよう前渡しする定額資金前渡制度"},
+  {id:17,term:"三伝票制",def:"入金伝票・出金伝票・振替伝票の3種類で取引を起票する制度"},
+  {id:18,term:"当座借越",def:"当座預金の残高を超えて小切手を振り出した場合に生じるマイナス残高"},
+];
+
+const CATS = [...new Map(QUESTIONS.map(q=>[q.cat,q.catName])).entries()];
+
+/* =========================================================
+   ストレージ
+   ========================================================= */
+async function loadProgress(){
+  const prog = {};
+  for(const [cat] of CATS){
+    try{ const r = await window.storage.get('progress:'+cat); prog[cat] = r ? JSON.parse(r.value) : {correct:0,total:0}; }
+    catch(e){ prog[cat] = {correct:0,total:0}; }
+  }
+  try{ const r = await window.storage.get('progress:vocab'); prog.vocab = r ? JSON.parse(r.value) : {correct:0,total:0}; }
+  catch(e){ prog.vocab = {correct:0,total:0}; }
+  return prog;
+}
+async function saveProgress(cat, correct, total){ try{ await window.storage.set('progress:'+cat, JSON.stringify({correct,total})); }catch(e){} }
+async function loadHistory(){ try{ const r = await window.storage.get('exam-history'); return r ? JSON.parse(r.value) : []; }catch(e){ return []; } }
+async function saveHistory(list){ try{ await window.storage.set('exam-history', JSON.stringify(list)); }catch(e){} }
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function fmtNum(n){ return Number(n).toLocaleString('ja-JP'); }
+
+/* =========================================================
+   状態
+   ========================================================= */
+let STATE = { screen:'home', progress:{}, history:[] };
+let quiz = null;
+let exam = null;
+let vocab = null;
+
+const root = document.getElementById('app');
+
+async function init(){
+  STATE.progress = await loadProgress();
+  STATE.history = await loadHistory();
+  renderHome();
+}
+function overallStats(){
+  let c=0,t=0;
+  for(const k in STATE.progress){ if(k==='vocab') continue; c+=STATE.progress[k].correct; t+=STATE.progress[k].total; }
+  return {c,t};
+}
+function beadRow(correct,max){
+  const filled = Math.min(correct, max); let html='';
+  for(let i=0;i<max;i++){ html += `<span class="bead ${i<filled?'':'dim'}"></span>`; }
+  return html;
+}
+
+/* =========================================================
+   ホーム
+   ========================================================= */
+function renderHome(){
+  const {c,t} = overallStats();
+  const acc = t? Math.round(c/t*100) : 0;
+  const vp = STATE.progress.vocab || {correct:0,total:0};
+  root.innerHTML = `
+    <header class="top">
+      <div class="brand"><span class="kanji">そろばん帳場</span><span class="sub">SOROBAN CHOBA · 簿記3級稽古</span></div>
+    </header>
+    <main>
+      <div class="hero">
+        <h1>今日も一問、帳合(ちょうあい)を。</h1>
+        <p>仕訳の勘定合わせを、そろばんの珠のように一つずつ。分からない問題は、そのままAIに類題を頼める。</p>
+      </div>
+      <div class="soroban">
+        <span style="color:#D8BC7B;font-size:11px;font-family:'JetBrains Mono',monospace;margin-right:4px;">正答珠</span>
+        <div class="bead-row">${beadRow(c,20)}</div>
+      </div>
+      <div class="stats-line">
+        <div>累計解答 <b>${t}</b> 問</div>
+        <div>正答率 <b>${acc}%</b></div>
+        <div>模試受験 <b>${STATE.history.length}</b> 回</div>
+        <div>単語 <b>${vp.correct}/${vp.total}</b></div>
+      </div>
+      <div class="mode-grid">
+        <button class="mode-card" onclick="goCatSelect()">
+          <div class="tag">MODE 01</div><h3>一問一答</h3>
+          <p>分野別。解説付き。答えた後はAIで類題も出せる。</p>
+        </button>
+        <button class="mode-card" onclick="startExam()">
+          <div class="tag">MODE 02</div><h3>模擬試験</h3>
+          <p>全範囲20問・20分。本番形式で採点。</p>
+        </button>
+        <button class="mode-card" onclick="goVocabModeSelect()">
+          <div class="tag">MODE 03</div><h3>単語クイズ</h3>
+          <p>簿記用語の意味を、選択式・記述式で確認。</p>
+        </button>
+      </div>
+      <div class="section-title">分野別 定着度</div>
+      <div class="cat-list">
+        ${CATS.map(([cat,name])=>{
+          const p = STATE.progress[cat] || {correct:0,total:0};
+          const pct = p.total? Math.round(p.correct/p.total*100):0;
+          return `<div class="cat-row"><span class="name">${name}</span>
+            <span style="display:flex;align-items:center;">
+              <span class="ratio">${p.correct}/${p.total}</span>
+              <span class="progress-mini"><i style="width:${pct}%"></i></span>
+            </span></div>`;
+        }).join('')}
+      </div>
+      ${STATE.history.length? `
+      <div class="section-title">模擬試験の履歴</div>
+      <div>${STATE.history.slice(-5).reverse().map(h=>`
+        <div class="history-item"><span>${h.date}</span><span><b>${h.score}</b> / ${h.total} 点</span></div>`).join('')}</div>` : ''}
+    </main>`;
+}
+
+/* =========================================================
+   一問一答: 分野選択
+   ========================================================= */
+function goCatSelect(){
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">分野を選ぶ</span><span class="sub">一問一答</span></div>
+      <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
+    <main>
+      <div class="chips" id="chipbox">
+        <button class="chip active" data-cat="all">全範囲</button>
+        ${CATS.map(([cat,name])=>`<button class="chip" data-cat="${cat}">${name}</button>`).join('')}
+      </div>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;">分野をタップして開始します。</p>
+    </main>`;
+  document.getElementById('chipbox').querySelectorAll('.chip').forEach(el=>{
+    el.addEventListener('click', ()=> startQuiz(el.dataset.cat));
+  });
+}
+function goHome(){ STATE.screen='home'; renderHome(); }
+
+/* =========================================================
+   一問一答
+   ========================================================= */
+function startQuiz(cat){
+  const pool = cat==='all' ? QUESTIONS : QUESTIONS.filter(q=>q.cat===cat);
+  quiz = { cat, list: shuffle(pool), idx:0, answeredIdx:null, inputAnswered:false, correctCount:0,
+           aiActive:false, aiQuestion:null, aiLoading:false, savedAnsweredIdx:null };
+  renderQuiz();
+}
+function currentQ(){ return quiz.aiActive ? quiz.aiQuestion : quiz.list[quiz.idx]; }
+
+function renderQuiz(){
+  const q = currentQ();
+  const isInput = q.type === 'input';
+  const answered = isInput ? quiz.inputAnswered : (quiz.answeredIdx !== null);
+  root.innerHTML = `
+    <header class="top">
+      <div class="brand"><span class="kanji">一問一答</span><span class="sub">${quiz.cat==='all'?'全範囲':q.catName}</span></div>
+      <button class="backbtn" onclick="goCatSelect()">← 分野選択へ</button>
+    </header>
+    <main>
+      <div class="qcard">
+        <div class="qmeta">
+          <span class="catname">${q.catName}</span>
+          ${quiz.aiActive? '<span class="aitag">✨ AI生成問題</span>' : ''}
+          <span class="counter">${quiz.aiActive? 'ボーナス問題' : (quiz.idx+1)+' / '+quiz.list.length+' ・ 正答 '+quiz.correctCount}</span>
+        </div>
+        <div class="qtext">${q.q}</div>
+        ${isInput ? `
+          <div class="input-row">
+            <input type="text" id="inputAnswerField" inputmode="numeric" placeholder="数字を入力" ${answered?'class="locked-input" disabled':''} value="${answered? fmtNum(q.answer):''}">
+            <span class="unit">${q.unit||''}</span>
+          </div>
+          ${!answered? '<button class="btn" style="margin-bottom:10px;" onclick="answerQuizInput()">解答する</button>' : ''}
+        ` : `
+          <div class="choices" id="choicebox">
+            ${q.choices.map((c,i)=>`<button class="choice" data-i="${i}"><span class="lab">${String.fromCharCode(65+i)}</span><span>${c}</span></button>`).join('')}
+          </div>
+        `}
+        <div class="explain" id="explainbox"></div>
+        <div class="qnav">
+          ${answered && !quiz.aiActive ? `<button class="btn ai-btn" ${quiz.aiLoading?'disabled':''} onclick="generateSimilar()">${quiz.aiLoading? '🤖 生成中…' : '🤖 似た問題をAIで出す'}</button>` : ''}
+          ${answered ? `<button class="btn" onclick="nextQuiz()">${quiz.aiActive? '元の問題に戻る' : (quiz.idx===quiz.list.length-1 ? 'この分野を終える' : '次の問題へ →')}</button>` : ''}
+        </div>
+      </div>
+    </main>`;
+  if(!isInput){
+    document.getElementById('choicebox').querySelectorAll('.choice').forEach(btn=>{
+      btn.addEventListener('click', ()=> answerQuizChoice(parseInt(btn.dataset.i)));
+    });
+  }
+  if(answered){
+    const q2 = currentQ();
+    if(!isInput){
+      const buttons = document.querySelectorAll('#choicebox .choice');
+      const chosen = quiz.aiActive ? quiz.aiAnsweredIdx : quiz.answeredIdx;
+      buttons.forEach((b,idx)=>{
+        b.classList.add('locked');
+        if(idx===q2.ans) b.classList.add('correct');
+        else if(idx===chosen) b.classList.add('wrong');
+      });
+    }
+    const exBox = document.getElementById('explainbox');
+    exBox.classList.add('show');
+    exBox.innerHTML = quiz.lastExplainHtml || q2.exp;
+  }
+}
+
+async function answerQuizChoice(i){
+  const q = currentQ();
+  if(quiz.aiActive){
+    if(quiz.aiAnsweredIdx !== undefined && quiz.aiAnsweredIdx !== null) return;
+    quiz.aiAnsweredIdx = i;
+  } else {
+    if(quiz.answeredIdx!==null) return;
+    quiz.answeredIdx = i;
+    quiz.correctCount += (i===q.ans) ? 1 : 0;
+  }
+  const correct = i===q.ans;
+  quiz.lastExplainHtml = (correct? '<b>◯ 正解。</b> ' : '<b>✕ 不正解。</b> ') + q.exp;
+  if(!quiz.aiActive){
+    const p = STATE.progress[q.cat] || {correct:0,total:0};
+    p.total += 1; if(correct) p.correct += 1;
+    STATE.progress[q.cat] = p;
+    await saveProgress(q.cat, p.correct, p.total);
+  }
+  renderQuiz();
+}
+
+async function answerQuizInput(){
+  const q = currentQ();
+  const field = document.getElementById('inputAnswerField');
+  const raw = field.value.replace(/[,，円\s]/g,'');
+  const val = parseFloat(raw);
+  const correct = !isNaN(val) && val === q.answer;
+  quiz.inputAnswered = true;
+  quiz.correctCount += correct ? 1 : 0;
+  quiz.lastExplainHtml = (correct? '<b>◯ 正解。</b> ' : `<b>✕ 不正解。正解は ${fmtNum(q.answer)}${q.unit||''}。</b> `) + q.exp;
+  const p = STATE.progress[q.cat] || {correct:0,total:0};
+  p.total += 1; if(correct) p.correct += 1;
+  STATE.progress[q.cat] = p;
+  await saveProgress(q.cat, p.correct, p.total);
+  renderQuiz();
+}
+
+function nextQuiz(){
+  if(quiz.aiActive){
+    quiz.aiActive = false; quiz.aiQuestion = null; quiz.aiAnsweredIdx = null;
+    quiz.answeredIdx = quiz.savedAnsweredIdx;
+    renderQuiz();
+    return;
+  }
+  if(quiz.idx < quiz.list.length-1){
+    quiz.idx++; quiz.answeredIdx=null; quiz.inputAnswered=false;
+    renderQuiz();
+  }else{
+    goHome();
+  }
+}
+
+async function generateSimilar(){
+  const base = quiz.list[quiz.idx];
+  quiz.savedAnsweredIdx = quiz.answeredIdx;
+  quiz.aiLoading = true;
+  renderQuiz();
+  const result = await fetchSimilarQuestion(base);
+  quiz.aiLoading = false;
+  if(result && Array.isArray(result.choices) && result.choices.length===4 && typeof result.answer==='number'){
+    quiz.aiActive = true;
+    quiz.aiAnsweredIdx = null;
+    quiz.aiQuestion = { cat: base.cat, catName: base.catName, type:'mcq', q: result.question, choices: result.choices, ans: result.answer, exp: result.explanation || '' };
+  } else {
+    alert('AI問題の生成に失敗しました。もう一度お試しください。');
+  }
+  renderQuiz();
+}
+
+async function fetchSimilarQuestion(baseQ){
+  try{
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ catName: baseQ.catName, question: baseQ.q })
+    });
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){ return null; }
+}
+
+/* =========================================================
+   模擬試験
+   ========================================================= */
+function startExam(){
+  const pool = QUESTIONS.filter(q=>q.type==='mcq');
+  const list = shuffle(pool).slice(0, Math.min(20, pool.length));
+  exam = { list, idx:0, answers:new Array(list.length).fill(null), seconds: 20*60 };
+  renderExam();
+  exam.timerId = setInterval(tickExam, 1000);
+}
+function tickExam(){
+  exam.seconds--;
+  const t = document.getElementById('examtimer');
+  if(t){ t.textContent = fmtTime(exam.seconds); t.classList.toggle('low', exam.seconds<=60); }
+  if(exam.seconds<=0){ clearInterval(exam.timerId); finishExam(); }
+}
+function fmtTime(s){ const m = Math.floor(s/60), sec = s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+function renderExam(){
+  const q = exam.list[exam.idx];
+  const chosen = exam.answers[exam.idx];
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">模擬試験</span><span class="sub">全範囲・20問</span></div></header>
+    <main>
+      <div class="exam-head"><span style="font-size:12px;color:var(--ink-soft);">残り時間</span><span class="timer" id="examtimer">${fmtTime(exam.seconds)}</span></div>
+      <div class="dots">${exam.list.map((_,i)=>`<span class="dot ${exam.answers[i]!==null?'answered':''} ${i===exam.idx?'current':''}" onclick="jumpExam(${i})" style="cursor:pointer;"></span>`).join('')}</div>
+      <div class="qcard">
+        <div class="qmeta"><span class="catname">${q.catName}</span><span class="counter">問 ${exam.idx+1} / ${exam.list.length}</span></div>
+        <div class="qtext">${q.q}</div>
+        <div class="choices" id="choicebox">
+          ${q.choices.map((c,i)=>`<button class="choice ${chosen===i?'correct':''}" data-i="${i}" onclick="chooseExam(${i})"><span class="lab">${String.fromCharCode(65+i)}</span><span>${c}</span></button>`).join('')}
+        </div>
+        <div class="qnav" style="justify-content:space-between;">
+          <button class="btn ghost" ${exam.idx===0?'disabled':''} onclick="jumpExam(${exam.idx-1})">← 前へ</button>
+          ${exam.idx===exam.list.length-1 ? `<button class="btn hanko-btn" onclick="confirmFinishExam()">採点する</button>` : `<button class="btn" onclick="jumpExam(${exam.idx+1})">次へ →</button>`}
+        </div>
+      </div>
+    </main>`;
+}
+function chooseExam(i){ exam.answers[exam.idx] = i; renderExam(); }
+function jumpExam(i){ if(i<0 || i>=exam.list.length) return; exam.idx = i; renderExam(); }
+function confirmFinishExam(){
+  const unanswered = exam.answers.filter(a=>a===null).length;
+  if(unanswered>0){ if(!confirm(`未回答が${unanswered}問あります。採点しますか?`)) return; }
+  clearInterval(exam.timerId); finishExam();
+}
+async function finishExam(){
+  if(exam.timerId) clearInterval(exam.timerId);
+  let score = 0; const byCat = {};
+  exam.list.forEach((q,i)=>{
+    const correct = exam.answers[i]===q.ans; if(correct) score++;
+    byCat[q.cat] = byCat[q.cat] || {name:q.catName, correct:0, total:0};
+    byCat[q.cat].total++; if(correct) byCat[q.cat].correct++;
+  });
+  const date = new Date();
+  const dateStr = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+  STATE.history.push({date:dateStr, score, total:exam.list.length});
+  await saveHistory(STATE.history);
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">採点結果</span><span class="sub">模擬試験</span></div>
+      <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
+    <main>
+      <div class="result-hero"><div class="result-label">SCORE</div><div class="result-score">${score}<span> / ${exam.list.length}</span></div></div>
+      <div class="section-title">分野別の正答</div>
+      <table class="breakdown"><thead><tr><th>分野</th><th>正答</th><th>出題</th></tr></thead>
+        <tbody>${Object.values(byCat).map(c=>`<tr><td>${c.name}</td><td class="num">${c.correct}</td><td class="num">${c.total}</td></tr>`).join('')}</tbody></table>
+      <div class="qnav" style="justify-content:space-between;margin-top:20px;">
+        <button class="btn ghost" onclick="reviewExam()">見直す</button>
+        <button class="btn" onclick="startExam()">もう一度挑戦</button>
+      </div>
+    </main>`;
+}
+function reviewExam(){
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">見直し</span><span class="sub">模擬試験</span></div>
+      <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
+    <main>${exam.list.map((q,i)=>{
+      const chosen = exam.answers[i]; const correct = chosen===q.ans;
+      return `<div class="qcard"><div class="qmeta"><span class="catname">${q.catName}</span><span class="counter">問${i+1} ${correct?'◯':'✕'}</span></div>
+        <div class="qtext">${q.q}</div>
+        <div class="choices">${q.choices.map((c,ci)=>`<div class="choice locked ${ci===q.ans?'correct':(ci===chosen?'wrong':'')}"><span class="lab">${String.fromCharCode(65+ci)}</span><span>${c}</span></div>`).join('')}</div>
+        <div class="explain show">${q.exp}</div></div>`;
+    }).join('')}</main>`;
+}
+
+/* =========================================================
+   単語クイズ
+   ========================================================= */
+function goVocabModeSelect(){
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">単語クイズ</span><span class="sub">簿記3級 用語</span></div>
+      <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
+    <main>
+      <div class="mode-grid" style="grid-template-columns:1fr 1fr;">
+        <button class="mode-card" onclick="startVocab('choice')"><div class="tag">選択式</div><h3>4択で答える</h3><p>用語を見て正しい意味を選ぶ。</p></button>
+        <button class="mode-card" onclick="startVocab('type')"><div class="tag">記述式</div><h3>用語を入力する</h3><p>意味を見て用語を自分で書く。</p></button>
+      </div>
+    </main>`;
+}
+function startVocab(mode){
+  vocab = { mode, list: shuffle(VOCAB), idx:0, answered:false, correctCount:0, chosenIdx:null };
+  renderVocab();
+}
+function renderVocab(){
+  const v = vocab.list[vocab.idx];
+  let others = VOCAB.filter(x=>x.id!==v.id);
+  others = shuffle(others).slice(0,3);
+  const choiceDefs = vocab.mode==='choice' ? shuffle([{def:v.def, ok:true}, ...others.map(o=>({def:o.def, ok:false}))]) : null;
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">単語クイズ</span><span class="sub">${vocab.mode==='choice'?'選択式':'記述式'}</span></div>
+      <button class="backbtn" onclick="goVocabModeSelect()">← 形式選択へ</button></header>
+    <main>
+      <div class="qcard">
+        <div class="qmeta"><span class="catname">用語</span><span class="counter">${vocab.idx+1} / ${vocab.list.length} ・ 正答 ${vocab.correctCount}</span></div>
+        ${vocab.mode==='choice' ? `
+          <div class="qtext">「${v.term}」の意味として正しいものはどれか。</div>
+          <div class="choices" id="vocabbox">
+            ${choiceDefs.map((c,i)=>`<button class="choice" data-i="${i}"><span class="lab">${String.fromCharCode(65+i)}</span><span>${c.def}</span></button>`).join('')}
+          </div>
+        ` : `
+          <div class="qtext">次の意味にあてはまる用語は何か。\n「${v.def}」</div>
+          <div class="input-row">
+            <input type="text" id="vocabInputField" placeholder="用語を入力" ${vocab.answered?'class="locked-input" disabled':''} value="${vocab.answered? v.term : ''}">
+          </div>
+          ${!vocab.answered? '<button class="btn" style="margin-bottom:10px;" onclick="answerVocabType()">解答する</button>' : ''}
+        `}
+        <div class="explain" id="explainbox"></div>
+        <div class="qnav"><button class="btn" id="vocabnext" ${vocab.answered?'':'disabled'} onclick="nextVocab()">${vocab.idx===vocab.list.length-1?'クイズを終える':'次の用語へ →'}</button></div>
+      </div>
+    </main>`;
+  if(vocab.mode==='choice'){
+    document.getElementById('vocabbox').querySelectorAll('.choice').forEach(btn=>{
+      btn.addEventListener('click', ()=> answerVocabChoice(parseInt(btn.dataset.i), choiceDefs));
+    });
+  }
+}
+async function answerVocabChoice(i, choiceDefs){
+  if(vocab.answered) return;
+  vocab.answered = true;
+  const correct = choiceDefs[i].ok;
+  if(correct) vocab.correctCount++;
+  const buttons = document.querySelectorAll('#vocabbox .choice');
+  buttons.forEach((b,idx)=>{ b.classList.add('locked'); if(choiceDefs[idx].ok) b.classList.add('correct'); else if(idx===i) b.classList.add('wrong'); });
+  const exBox = document.getElementById('explainbox'); exBox.classList.add('show');
+  const v = vocab.list[vocab.idx];
+  exBox.innerHTML = (correct?'<b>◯ 正解。</b> ':'<b>✕ 不正解。</b> ') + `「${v.term}」は<b>${v.def}</b>という意味。`;
+  document.getElementById('vocabnext').disabled = false;
+  await bumpVocabProgress(correct);
+}
+async function answerVocabType(){
+  const v = vocab.list[vocab.idx];
+  const field = document.getElementById('vocabInputField');
+  const val = field.value.trim();
+  const correct = val === v.term;
+  vocab.answered = true;
+  if(correct) vocab.correctCount++;
+  const exBox = document.getElementById('explainbox'); exBox.classList.add('show');
+  exBox.innerHTML = (correct?'<b>◯ 正解。</b>':`<b>✕ 不正解。正解は「${v.term}」。</b>`) + ` ${v.def}`;
+  renderVocab();
+  await bumpVocabProgress(correct);
+}
+async function bumpVocabProgress(correct){
+  const p = STATE.progress.vocab || {correct:0,total:0};
+  p.total += 1; if(correct) p.correct += 1;
+  STATE.progress.vocab = p;
+  await saveProgress('vocab', p.correct, p.total);
+}
+function nextVocab(){
+  if(vocab.idx < vocab.list.length-1){ vocab.idx++; vocab.answered=false; renderVocab(); }
+  else{ goHome(); }
+}
+
+/* =========================================================
+   ルーター / グローバル公開
+   ========================================================= */
+window.goCatSelect = goCatSelect;
+window.goHome = goHome;
+window.startQuiz = startQuiz;
+window.nextQuiz = nextQuiz;
+window.generateSimilar = generateSimilar;
+window.startExam = startExam;
+window.chooseExam = chooseExam;
+window.jumpExam = jumpExam;
+window.confirmFinishExam = confirmFinishExam;
+window.reviewExam = reviewExam;
+window.goVocabModeSelect = goVocabModeSelect;
+window.startVocab = startVocab;
+window.answerVocabType = answerVocabType;
+window.nextVocab = nextVocab;
+
+init();
+</script>
+</body>
+</html>
