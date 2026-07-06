@@ -1164,18 +1164,27 @@ function goVocabModeSelect(){
       </div>
     </main>`;
 }
-function startVocab(mode){
-  vocab = { mode, list: shuffle(VOCAB), idx:0, answered:false, correctCount:0, chosenIdx:null };
+function startVocab(mode, subset, backTo){
+  const pool = (subset && subset.length>=1) ? subset : VOCAB;
+  vocab = { mode, list: shuffle(pool), pool, idx:0, answered:false, correctCount:0, chosenIdx:null,
+            backTo: backTo || 'vocabmenu' };
   renderVocab();
 }
 function renderVocab(){
   const v = vocab.list[vocab.idx];
-  let others = VOCAB.filter(x=>x.id!==v.id);
-  others = shuffle(others).slice(0,3);
+  // 誤答肢はまず同じ出題範囲(pool)から、足りなければ全VOCABから補う
+  let othersPool = (vocab.pool||VOCAB).filter(x=>x.id!==v.id);
+  if(othersPool.length < 3){
+    const extra = VOCAB.filter(x=>x.id!==v.id && !othersPool.some(o=>o.id===x.id));
+    othersPool = othersPool.concat(extra);
+  }
+  const others = shuffle(othersPool).slice(0,3);
   const choiceDefs = vocab.mode==='choice' ? shuffle([{def:v.def, ok:true}, ...others.map(o=>({def:o.def, ok:false}))]) : null;
+  const backAction = vocab.backTo==='glossary' ? 'goGlossary()' : 'goVocabModeSelect()';
+  const backLabel = vocab.backTo==='glossary' ? '← 用語集へ' : '← 形式選択へ';
   root.innerHTML = `
     <header class="top"><div class="brand"><span class="kanji">単語クイズ</span><span class="sub">${vocab.mode==='choice'?'選択式':'記述式'}</span></div>
-      <button class="backbtn" onclick="goVocabModeSelect()">← 形式選択へ</button></header>
+      <button class="backbtn" onclick="${backAction}">${backLabel}</button></header>
     <main>
       <div class="qcard">
         <div class="qmeta"><span class="catname">用語</span><span class="counter">${vocab.idx+1} / ${vocab.list.length} ・ 正答 ${vocab.correctCount}</span></div>
@@ -1234,7 +1243,7 @@ async function bumpVocabProgress(correct){
 }
 function nextVocab(){
   if(vocab.idx < vocab.list.length-1){ vocab.idx++; vocab.answered=false; renderVocab(); }
-  else{ goHome(); }
+  else{ if(vocab.backTo==='glossary') goGlossary(); else goHome(); }
 }
 
 /* =========================================================
@@ -1463,31 +1472,62 @@ async function answerAIQuizJournal(){
    用語集(GLOSSARY): VOCABを分野ごとに一覧表示 + 検索
    ========================================================= */
 function goGlossary(){
-  renderGlossary('');
+  glossaryKeyword = '';
+  glossaryCat = 'all';
+  renderGlossary();
 }
-function renderGlossary(keyword){
-  const kw = (keyword||'').trim();
-  const filtered = kw ? VOCAB.filter(v=> v.term.includes(kw) || v.def.includes(kw)) : VOCAB;
+let glossaryKeyword = '';
+let glossaryCat = 'all';
+
+function glossaryFiltered(){
+  const kw = (glossaryKeyword||'').trim();
+  return VOCAB.filter(v=>
+    (glossaryCat==='all' || v.cat===glossaryCat) &&
+    (!kw || v.term.includes(kw) || v.def.includes(kw))
+  );
+}
+
+function startGlossaryQuiz(){
+  const subset = glossaryFiltered();
+  if(subset.length < 1){ return; }
+  startVocab('choice', subset, 'glossary');
+}
+
+function renderGlossary(){
+  const kw = glossaryKeyword.trim();
+  const allCats = [...new Set(VOCAB.map(v=>v.cat))];
+  const filtered = glossaryFiltered();
   const cats = [...new Set(filtered.map(v=>v.cat))];
   const listHtml = filtered.length ? cats.map(cat=>`
     <div class="gloss-cat">${cat}</div>
     ${filtered.filter(v=>v.cat===cat).map(v=>`
       <div class="gloss-item"><div class="term">${v.term}</div><div class="def">${v.def}</div></div>`).join('')}
-  `).join('') : `<p style="font-size:13px;color:var(--ink-soft);text-align:center;padding:20px;">「${kw}」に一致する用語は見つかりませんでした。</p>`;
+  `).join('') : `<p style="font-size:13px;color:var(--ink-soft);text-align:center;padding:20px;">条件に一致する用語は見つかりませんでした。</p>`;
   root.innerHTML = `
     <header class="top"><div class="brand"><span class="kanji">用語集</span><span class="sub">簿記3級 用語辞典</span></div>
       <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
     <main>
       <input type="text" class="gloss-search" id="glossSearch" placeholder="用語や説明を検索(例: 手形、掛け)" value="${kw}">
-      <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 8px;">全 ${VOCAB.length} 語${kw?` ・ 「${kw}」で ${filtered.length} 件`:''}</p>
+      <div class="chips" id="glossCatChips" style="margin-bottom:12px;">
+        <button class="chip ${glossaryCat==='all'?'active':''}" data-cat="all">全分野</button>
+        ${allCats.map(c=>`<button class="chip ${glossaryCat===c?'active':''}" data-cat="${c}">${c}</button>`).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;gap:10px;">
+        <span style="font-size:11.5px;color:var(--ink-soft);">${filtered.length} 語を表示中</span>
+        <button class="btn" ${filtered.length<1?'disabled':''} onclick="startGlossaryQuiz()">この一覧を4択で確認 →</button>
+      </div>
       ${listHtml}
     </main>`;
   const box = document.getElementById('glossSearch');
   box.addEventListener('input', ()=>{
+    glossaryKeyword = box.value;
     const pos = box.selectionStart;
-    renderGlossary(box.value);
+    renderGlossary();
     const nb = document.getElementById('glossSearch');
     if(nb){ nb.focus(); try{ nb.setSelectionRange(pos,pos); }catch(e){} }
+  });
+  document.getElementById('glossCatChips').querySelectorAll('.chip').forEach(el=>{
+    el.addEventListener('click', ()=>{ glossaryCat = el.dataset.cat; renderGlossary(); });
   });
 }
 
@@ -1555,6 +1595,7 @@ window.nextVocab = nextVocab;
 window.goLessons = goLessons;
 window.readLesson = readLesson;
 window.goGlossary = goGlossary;
+window.startGlossaryQuiz = startGlossaryQuiz;
 
 init();
 </script>
