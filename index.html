@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -224,6 +225,187 @@ const QUESTIONS = [
   {id:55,cat:"zenkai",catName:"簿記の全体像",type:"mcq",q:"総勘定元帳の記録をもとに、借方合計と貸方合計を一覧にして転記ミスがないかを確認する表を何というか。",choices:["精算表","試算表","損益計算書","商品有高帳"],ans:1,exp:"転記の正確性を確認するために作成する表を<b>試算表</b>という。"},
   {id:56,cat:"zenkai",catName:"簿記の全体像",type:"mcq",q:"決算整理を経て損益計算書・貸借対照表の金額を求めるまでの過程をまとめたワークシートを何というか。",choices:["試算表","精算表","仕訳日計表","商品有高帳"],ans:1,exp:"決算整理前の試算表から財務諸表の作成までをまとめた表を<b>精算表</b>という。"},
   {id:57,cat:"zenkai",catName:"簿記の全体像",type:"mcq",q:"会計期間の最終日(締め日)のことを何というか。",choices:["期首","決算日(期末)","会計期間","締切日"],ans:1,exp:"会計期間の最終日を<b>決算日(期末)</b>という。初日は期首という。"},
+
+  /* ---- 仕訳入力(journal): 借方・貸方の勘定科目と金額を自分で書く。debits/creditsは配列(複数行の仕訳にも対応) ---- */
+  {id:58,cat:"genkin",catName:"現金・預金",type:"journal",q:"現金¥100,000を普通預金口座に預け入れた。この取引を仕訳しなさい。",
+    debits:[{account:"普通預金",amount:100000}], credits:[{account:"現金",amount:100000}],
+    exp:"現金という資産が普通預金という資産に姿を変えただけの取引。借方に普通預金、貸方に現金を計上する。"},
+  {id:59,cat:"genkin",catName:"現金・預金",type:"journal",q:"現金の実際有高を数えたところ、帳簿残高より¥3,000少なかった。原因は不明である。この取引を仕訳しなさい。",
+    debits:[{account:"現金過不足",amount:3000}], credits:[{account:"現金",amount:3000}],
+    exp:"帳簿残高より実際有高が少ない場合、借方に現金過不足を計上して帳簿上の現金を減らす。"},
+  {id:60,cat:"genkin",catName:"現金・預金",type:"journal",q:"決算日になっても、上記の現金過不足¥3,000の原因が判明しなかったため、雑損として処理した。この取引を仕訳しなさい。",
+    debits:[{account:"雑損",amount:3000}], credits:[{account:"現金過不足",amount:3000}],
+    exp:"決算日までに原因不明のまま残った現金過不足は、雑損(または雑損失)に振り替える。"},
+  {id:61,cat:"urikake",catName:"売掛金・買掛金",type:"journal",q:"商品¥80,000を掛けで販売した。この取引を仕訳しなさい。",
+    debits:[{account:"売掛金",amount:80000}], credits:[{account:"売上",amount:80000}],
+    exp:"商品を掛けで<b>販売</b>したときは、借方に売掛金、貸方に売上を計上する。"},
+  {id:62,cat:"urikake",catName:"売掛金・買掛金",type:"journal",q:"買掛金¥30,000を現金で支払った。この取引を仕訳しなさい。",
+    debits:[{account:"買掛金",amount:30000}], credits:[{account:"現金",amount:30000}],
+    exp:"買掛金(負債)を支払って減少させたので借方に買掛金、現金が減るので貸方に現金を計上する。"},
+  {id:63,cat:"urikake",catName:"売掛金・買掛金",type:"journal",q:"クレジット払いの条件で商品¥50,000を売り上げ、販売時に信販会社への手数料(販売代金の2%)を計上した。この取引を仕訳しなさい。",
+    debits:[{account:"クレジット売掛金",amount:49000},{account:"支払手数料",amount:1000}], credits:[{account:"売上",amount:50000}],
+    exp:"手数料1,000円(50,000円×2%)を販売時に計上する場合、クレジット売掛金は手数料を差し引いた49,000円で計上する。"},
+  {id:64,cat:"tegata",catName:"手形",type:"journal",q:"商品¥60,000を売り上げ、代金として同社振出しの約束手形を受け取った。この取引を仕訳しなさい。",
+    debits:[{account:"受取手形",amount:60000}], credits:[{account:"売上",amount:60000}],
+    exp:"約束手形を受け取った側は、借方に受取手形(資産の増加)、貸方に売上を計上する。"},
+  {id:65,cat:"tegata",catName:"手形",type:"journal",q:"所有する約束手形¥100,000を銀行で割り引き、割引料¥2,000を差し引かれた手取金が当座預金に入金された。この取引を仕訳しなさい。",
+    debits:[{account:"当座預金",amount:98000},{account:"手形売却損",amount:2000}], credits:[{account:"受取手形",amount:100000}],
+    exp:"手取金(100,000-2,000=98,000円)を当座預金に計上し、割引料は手形売却損として処理する。"},
+  {id:66,cat:"tegata",catName:"手形",type:"journal",q:"電子記録債権¥40,000が当座預金口座に振り込まれ決済された。この取引を仕訳しなさい。",
+    debits:[{account:"当座預金",amount:40000}], credits:[{account:"電子記録債権",amount:40000}],
+    exp:"電子記録債権が決済されたので、借方に当座預金、貸方に電子記録債権(資産の減少)を計上する。"},
+  {id:67,cat:"kasidaore",catName:"貸倒れ",type:"journal",q:"決算にあたり、売掛金の期末残高¥200,000に対して2%の貸倒引当金を差額補充法で設定する。貸倒引当金の残高は¥0である。決算整理仕訳をしなさい。",
+    debits:[{account:"貸倒引当金繰入",amount:4000}], credits:[{account:"貸倒引当金",amount:4000}],
+    exp:"200,000円×2%=4,000円。既存残高が0円なので、全額を貸倒引当金繰入として計上する。"},
+  {id:68,cat:"kasidaore",catName:"貸倒れ",type:"journal",q:"前期に発生した売掛金¥50,000が貸し倒れた。貸倒引当金の残高は¥70,000ある。この取引を仕訳しなさい。",
+    debits:[{account:"貸倒引当金",amount:50000}], credits:[{account:"売掛金",amount:50000}],
+    exp:"引当金残高の範囲内なので、借方は貸倒引当金を取り崩し、貸方は売掛金を減額する。"},
+  {id:69,cat:"yukashoken",catName:"有価証券",type:"journal",q:"売買目的でA社株式¥120,000を購入し、購入手数料¥3,000とあわせて現金で支払った。この取引を仕訳しなさい。",
+    debits:[{account:"有価証券",amount:123000}], credits:[{account:"現金",amount:123000}],
+    exp:"取得原価は購入代価に付随費用を含める。120,000+3,000=123,000円を有価証券として計上する。"},
+  {id:70,cat:"yukashoken",catName:"有価証券",type:"journal",q:"帳簿価額¥80,000の有価証券を¥95,000で売却し、代金は当座預金に入金された。この取引を仕訳しなさい。",
+    debits:[{account:"当座預金",amount:95000}], credits:[{account:"有価証券",amount:80000},{account:"有価証券売却益",amount:15000}],
+    exp:"売却額が帳簿価額を上回る差額15,000円を有価証券売却益として貸方に計上する。"},
+  {id:71,cat:"kotei",catName:"固定資産",type:"journal",q:"備品¥500,000を購入し、代金は現金で支払った。この取引を仕訳しなさい。",
+    debits:[{account:"備品",amount:500000}], credits:[{account:"現金",amount:500000}],
+    exp:"固定資産を現金で購入したときは、借方に備品(資産の増加)、貸方に現金(資産の減少)を計上する。"},
+  {id:72,cat:"kotei",catName:"固定資産",type:"journal",q:"取得原価¥240,000、耐用年数6年、残存価額0の備品について、定額法(直接法)により1年分の減価償却費を計上する。決算整理仕訳をしなさい。",
+    debits:[{account:"減価償却費",amount:40000}], credits:[{account:"備品",amount:40000}],
+    exp:"年間償却額=240,000円÷6年=40,000円。直接法では貸方に固定資産そのもの(備品)を減額する。"},
+  {id:73,cat:"kotei",catName:"固定資産",type:"journal",q:"間接法で記帳している備品(取得原価¥400,000、減価償却累計額¥240,000)を¥100,000で現金売却した。この取引を仕訳しなさい。",
+    debits:[{account:"現金",amount:100000},{account:"減価償却累計額",amount:240000},{account:"固定資産売却損",amount:60000}], credits:[{account:"備品",amount:400000}],
+    exp:"帳簿価額=400,000-240,000=160,000円。売却額100,000円との差額60,000円は固定資産売却損となる。貸方は取得原価400,000円で備品を全額取り消す。"},
+  {id:74,cat:"keika",catName:"経過勘定",type:"journal",q:"決算にあたり、支払家賃¥12,000のうち、翌期分¥4,000を前払処理する。決算整理仕訳をしなさい。",
+    debits:[{account:"前払家賃",amount:4000}], credits:[{account:"支払家賃",amount:4000}],
+    exp:"次期分の費用を繰り延べるため、借方に前払家賃(資産)、貸方に支払家賃を計上して費用を取り消す。"},
+  {id:75,cat:"keika",catName:"経過勘定",type:"journal",q:"決算日現在、借入金の利息のうち当期未払分¥5,000がある。決算整理仕訳をしなさい。",
+    debits:[{account:"支払利息",amount:5000}], credits:[{account:"未払利息",amount:5000}],
+    exp:"当期分の費用でまだ支払っていない分は、借方に支払利息、貸方に未払利息(負債)を計上して費用を見越し計上する。"},
+  {id:76,cat:"shihon",catName:"資本・引出金",type:"journal",q:"個人事業主が、事業用の現金¥20,000を家計費(私用)のために引き出した。この取引を仕訳しなさい。",
+    debits:[{account:"引出金",amount:20000}], credits:[{account:"現金",amount:20000}],
+    exp:"事業主が私用のために資金を引き出した場合、借方に引出金(資本金のマイナス勘定)を計上する。"},
+  {id:77,cat:"kouguchi",catName:"小口現金",type:"journal",q:"定額資金前渡制度により、小切手¥5,000を振り出して小口現金係に渡した。この取引を仕訳しなさい。",
+    debits:[{account:"小口現金",amount:5000}], credits:[{account:"当座預金",amount:5000}],
+    exp:"小口現金を前渡ししたときは、借方に小口現金(資産)、貸方に当座預金を計上する。"},
+  {id:78,cat:"kouguchi",catName:"小口現金",type:"journal",q:"用度係から旅費交通費¥2,000、消耗品費¥800の支払報告を受け、ただちに小切手で同額を補給した。この取引を仕訳しなさい。",
+    debits:[{account:"旅費交通費",amount:2000},{account:"消耗品費",amount:800}], credits:[{account:"当座預金",amount:2800}],
+    exp:"報告を受けた費用の内訳ごとに借方を計上し、ただちに補給する場合は貸方に当座預金を計上する。"},
+  {id:79,cat:"kessan",catName:"試算表・精算表",type:"journal",q:"現金¥300,000を貸し付け、同時に借用証書を受け取った。この取引を仕訳しなさい。",
+    debits:[{account:"貸付金",amount:300000}], credits:[{account:"現金",amount:300000}],
+    exp:"金銭を貸し付けたときは、借方に貸付金(資産)、貸方に現金を計上する。"},
+  {id:80,cat:"kessan",catName:"試算表・精算表",type:"journal",q:"上記の貸付金¥300,000(貸付期間8か月、年利率3%)が返済期日となり、元金と利息(300,000円×3%×8/12=6,000円)とともに普通預金口座に振り込まれた。この取引を仕訳しなさい。",
+    debits:[{account:"普通預金",amount:306000}], credits:[{account:"貸付金",amount:300000},{account:"受取利息",amount:6000}],
+    exp:"入金額306,000円のうち、元金300,000円は貸付金の回収、利息6,000円は受取利息として貸方に計上する。"},
+  {id:81,cat:"zeikin",catName:"法人税等・消費税",type:"journal",q:"商品¥22,000(消費税¥2,000を含む)を仕入れ、代金は掛けとした。税抜方式によりこの取引を仕訳しなさい。",
+    debits:[{account:"仕入",amount:20000},{account:"仮払消費税",amount:2000}], credits:[{account:"買掛金",amount:22000}],
+    exp:"税抜方式では、消費税分を仮払消費税として仕入本体と分けて計上する。"},
+  {id:82,cat:"zeikin",catName:"法人税等・消費税",type:"journal",q:"商品を¥33,000(消費税¥3,000を含む)で販売し、代金は掛けとした。税抜方式によりこの取引を仕訳しなさい。",
+    debits:[{account:"売掛金",amount:33000}], credits:[{account:"売上",amount:30000},{account:"仮受消費税",amount:3000}],
+    exp:"税抜方式では、受け取った消費税分を仮受消費税として売上本体と分けて計上する。"},
+  {id:83,cat:"zeikin",catName:"法人税等・消費税",type:"journal",q:"決算にあたり、仮払消費税¥2,000、仮受消費税¥3,000であった。税抜方式による決算整理仕訳をしなさい。",
+    debits:[{account:"仮受消費税",amount:3000}], credits:[{account:"仮払消費税",amount:2000},{account:"未払消費税",amount:1000}],
+    exp:"仮受消費税と仮払消費税を相殺し、差額1,000円(3,000-2,000)を未払消費税として計上する。"},
+  {id:84,cat:"kabushiki",catName:"株式・剰余金",type:"journal",q:"株式会社の設立にあたり、株式50株を1株¥1,000で発行し、払込金額の全額を当座預金に受け入れた。この取引を仕訳しなさい。",
+    debits:[{account:"当座預金",amount:50000}], credits:[{account:"資本金",amount:50000}],
+    exp:"払込金額の全額を資本金とするのが原則。50株×1,000円=50,000円を資本金として計上する。"},
+  {id:85,cat:"kabushiki",catName:"株式・剰余金",type:"journal",q:"株主総会にて、繰越利益剰余金を財源に配当¥30,000を行うこと、あわせて利益準備金¥3,000を積み立てることを決議した。この取引を仕訳しなさい。",
+    debits:[{account:"繰越利益剰余金",amount:33000}], credits:[{account:"未払配当金",amount:30000},{account:"利益準備金",amount:3000}],
+    exp:"配当決議時点では、まだ現金は支払われていないため貸方は未払配当金とする。あわせて利益準備金を積み立てる。"},
+  {id:86,cat:"sonota",catName:"その他費用・収益(訂正仕訳)",type:"journal",q:"支払家賃¥10,000を現金で支払った際、誤って借方・貸方を逆に仕訳してしまった。この誤りを訂正する仕訳をしなさい。",
+    debits:[{account:"支払家賃",amount:20000}], credits:[{account:"現金",amount:20000}],
+    exp:"誤った仕訳(借方:現金10,000/貸方:支払家賃10,000)を打ち消し、正しい仕訳(借方:支払家賃10,000/貸方:現金10,000)を追加するため、訂正仕訳では2倍の20,000円を計上する。"},
+  {id:87,cat:"sonota",catName:"その他費用・収益",type:"journal",q:"従業員に給料¥250,000を支払うにあたり、源泉所得税¥15,000を差し引き、残額を現金で支払った。この取引を仕訳しなさい。",
+    debits:[{account:"給料",amount:250000}], credits:[{account:"所得税預り金",amount:15000},{account:"現金",amount:235000}],
+    exp:"給料の総額250,000円を借方に計上し、預かった源泉所得税15,000円は所得税預り金、残額235,000円を現金で支払う。"},
+
+  /* ---- 財務諸表の穴埋め(statement): 損益計算書・貸借対照表を完成させる ---- */
+  {id:88,cat:"zaimu",catName:"財務諸表(損益計算書・貸借対照表)",type:"statement",
+    q:"次の資料にもとづいて、損益計算書の空欄(①②③)を埋めなさい。",
+    rows:[
+      {label:"売上高", value:100000, given:true},
+      {label:"売上原価", value:60000, given:true},
+      {label:"① 売上総利益", value:40000, given:false},
+      {label:"給料", value:15000, given:true},
+      {label:"支払家賃", value:5000, given:true},
+      {label:"雑費", value:2000, given:true},
+      {label:"② 販売費及び一般管理費 合計", value:22000, given:false},
+      {label:"③ 当期純利益", value:18000, given:false}
+    ],
+    exp:"①売上総利益=売上高100,000-売上原価60,000=<b>40,000円</b>。②販管費合計=給料15,000+支払家賃5,000+雑費2,000=<b>22,000円</b>。③当期純利益=①40,000-②22,000=<b>18,000円</b>。"},
+  {id:89,cat:"zaimu",catName:"財務諸表(損益計算書・貸借対照表)",type:"statement",
+    q:"次の資料にもとづいて、貸借対照表の空欄(①②③)を埋めなさい。",
+    rows:[
+      {label:"現金", value:50000, given:true},
+      {label:"売掛金", value:30000, given:true},
+      {label:"商品", value:20000, given:true},
+      {label:"① 資産合計", value:100000, given:false},
+      {label:"買掛金", value:25000, given:true},
+      {label:"借入金", value:15000, given:true},
+      {label:"② 負債合計", value:40000, given:false},
+      {label:"③ 資本金", value:60000, given:false}
+    ],
+    exp:"①資産合計=50,000+30,000+20,000=<b>100,000円</b>。②負債合計=25,000+15,000=<b>40,000円</b>。③資本金=資産合計100,000-負債合計40,000=<b>60,000円</b>(資産=負債+純資産)。"},
+  {id:90,cat:"zaimu",catName:"財務諸表(損益計算書・貸借対照表)",type:"statement",
+    q:"次の資料にもとづいて、損益計算書の空欄(①②)を埋めなさい。",
+    rows:[
+      {label:"売上高", value:300000, given:true},
+      {label:"売上原価", value:180000, given:true},
+      {label:"① 売上総利益", value:120000, given:false},
+      {label:"広告宣伝費", value:30000, given:true},
+      {label:"支払利息", value:5000, given:true},
+      {label:"② 当期純利益", value:85000, given:false}
+    ],
+    exp:"①売上総利益=300,000-180,000=<b>120,000円</b>。②当期純利益=120,000-(広告宣伝費30,000+支払利息5,000)=<b>85,000円</b>。"},
+  {id:91,cat:"zaimu",catName:"財務諸表(損益計算書・貸借対照表)",type:"statement",
+    q:"次の資料にもとづいて、貸借対照表の空欄(①②)を埋めなさい。",
+    rows:[
+      {label:"現金", value:80000, given:true},
+      {label:"備品", value:70000, given:true},
+      {label:"① 資産合計", value:150000, given:false},
+      {label:"買掛金", value:50000, given:true},
+      {label:"資本金", value:80000, given:true},
+      {label:"② 繰越利益剰余金", value:20000, given:false}
+    ],
+    exp:"①資産合計=80,000+70,000=<b>150,000円</b>。②繰越利益剰余金=資産合計150,000-買掛金50,000-資本金80,000=<b>20,000円</b>。"},
+  {id:92,cat:"zaimu",catName:"財務諸表(損益計算書・貸借対照表)",type:"statement",
+    q:"次の資料と決算整理事項にもとづいて、損益計算書の空欄(①〜④)を埋めなさい。【決算整理事項】備品(取得原価¥60,000、耐用年数5年、残存価額0、定額法)について減価償却を行う。",
+    rows:[
+      {label:"売上高", value:250000, given:true},
+      {label:"期首商品棚卸高", value:20000, given:true},
+      {label:"当期仕入高", value:150000, given:true},
+      {label:"期末商品棚卸高", value:30000, given:true},
+      {label:"① 売上原価", value:140000, given:false},
+      {label:"② 売上総利益", value:110000, given:false},
+      {label:"給料", value:40000, given:true},
+      {label:"③ 減価償却費", value:12000, given:false},
+      {label:"④ 当期純利益", value:58000, given:false}
+    ],
+    exp:"①売上原価=期首20,000+当期仕入150,000-期末30,000=<b>140,000円</b>。②売上総利益=250,000-140,000=<b>110,000円</b>。③減価償却費=取得原価60,000÷耐用年数5年=<b>12,000円</b>。④当期純利益=②110,000-(給料40,000+③12,000)=<b>58,000円</b>。"},
+  {id:93,cat:"zaimu",catName:"財務諸表(損益計算書・貸借対照表)",type:"statement",
+    q:"次の資料と決算整理事項にもとづいて、貸借対照表の空欄(①〜③)を埋めなさい。【決算整理事項】売掛金の期末残高に対して3%の貸倒引当金を差額補充法で設定する(設定前残高¥1,000)。",
+    rows:[
+      {label:"現金", value:40000, given:true},
+      {label:"売掛金", value:100000, given:true},
+      {label:"① 貸倒引当金", value:3000, given:false},
+      {label:"② 売掛金(純額)", value:97000, given:false},
+      {label:"備品", value:60000, given:true},
+      {label:"③ 資産合計", value:197000, given:false},
+      {label:"買掛金", value:47000, given:true},
+      {label:"資本金", value:150000, given:true}
+    ],
+    exp:"①貸倒引当金=売掛金100,000×3%=<b>3,000円</b>。②売掛金(純額)=100,000-3,000=<b>97,000円</b>。③資産合計=現金40,000+②97,000+備品60,000=<b>197,000円</b>(負債47,000+資本金150,000=197,000円と一致)。"},
+  {id:94,cat:"zaimu",catName:"財務諸表(損益計算書・貸借対照表)",type:"statement",
+    q:"次の資料と決算整理事項にもとづいて、損益計算書の空欄(①〜④)を埋めなさい。【決算整理事項】支払保険料(整理前¥12,000)のうち、翌期分¥3,000を前払処理する。",
+    rows:[
+      {label:"売上高", value:180000, given:true},
+      {label:"売上原価", value:100000, given:true},
+      {label:"① 売上総利益", value:80000, given:false},
+      {label:"支払保険料(整理前)", value:12000, given:true},
+      {label:"② 前払保険料", value:3000, given:false},
+      {label:"③ 支払保険料(損益計算書に計上する額)", value:9000, given:false},
+      {label:"④ 当期純利益", value:71000, given:false}
+    ],
+    exp:"①売上総利益=180,000-100,000=<b>80,000円</b>。②前払保険料は翌期分の<b>3,000円</b>。③支払保険料(当期分)=整理前12,000-②3,000=<b>9,000円</b>。④当期純利益=①80,000-③9,000=<b>71,000円</b>。"},
 ];
 
 const VOCAB = [
@@ -321,16 +503,24 @@ function renderHome(){
         <div>単語 <b>${vp.correct}/${vp.total}</b></div>
       </div>
       <div class="mode-grid">
-        <button class="mode-card" onclick="goCatSelect()">
+        <button class="mode-card" onclick="goCatSelect(['mcq','input'],'一問一答')">
           <div class="tag">MODE 01</div><h3>一問一答</h3>
-          <p>分野別。解説付き。答えた後はAIで類題も出せる。</p>
+          <p>4択・金額入力。答えた後はAIで類題も出せる。</p>
+        </button>
+        <button class="mode-card" onclick="goCatSelect(['journal'],'仕訳問題')">
+          <div class="tag">MODE 02</div><h3>仕訳問題</h3>
+          <p>借方・貸方の科目と金額を自分で書く。AIが仕訳の類題も作れる。</p>
+        </button>
+        <button class="mode-card" onclick="goCatSelect(['statement'],'財務諸表')">
+          <div class="tag">MODE 03</div><h3>財務諸表</h3>
+          <p>損益計算書・貸借対照表の空欄を埋めて完成させる。</p>
         </button>
         <button class="mode-card" onclick="startExam()">
-          <div class="tag">MODE 02</div><h3>模擬試験</h3>
+          <div class="tag">MODE 04</div><h3>模擬試験</h3>
           <p>全範囲20問・20分。本番形式で採点。</p>
         </button>
         <button class="mode-card" onclick="goVocabModeSelect()">
-          <div class="tag">MODE 03</div><h3>単語クイズ</h3>
+          <div class="tag">MODE 05</div><h3>単語クイズ</h3>
           <p>簿記用語の意味を、選択式・記述式で確認。</p>
         </button>
       </div>
@@ -354,16 +544,22 @@ function renderHome(){
 }
 
 /* =========================================================
-   一問一答: 分野選択
+   分野選択(モード対応: 一問一答 / 仕訳問題 / 財務諸表)
    ========================================================= */
-function goCatSelect(){
+let currentModeTypes = ['mcq','input'];
+let currentModeLabel = '一問一答';
+
+function goCatSelect(types, label){
+  if(types){ currentModeTypes = types; currentModeLabel = label; }
+  const modeTypes = currentModeTypes, modeLabel = currentModeLabel;
+  const catsForMode = [...new Map(QUESTIONS.filter(q=>modeTypes.includes(q.type)).map(q=>[q.cat,q.catName])).entries()];
   root.innerHTML = `
-    <header class="top"><div class="brand"><span class="kanji">分野を選ぶ</span><span class="sub">一問一答</span></div>
+    <header class="top"><div class="brand"><span class="kanji">分野を選ぶ</span><span class="sub">${modeLabel}</span></div>
       <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
     <main>
       <div class="chips" id="chipbox">
         <button class="chip active" data-cat="all">全範囲</button>
-        ${CATS.map(([cat,name])=>`<button class="chip" data-cat="${cat}">${name}</button>`).join('')}
+        ${catsForMode.map(([cat,name])=>`<button class="chip" data-cat="${cat}">${name}</button>`).join('')}
       </div>
       <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;">分野をタップして開始します。</p>
     </main>`;
@@ -374,44 +570,90 @@ function goCatSelect(){
 function goHome(){ STATE.screen='home'; renderHome(); }
 
 /* =========================================================
-   一問一答
+   一問一答 / 仕訳問題 / 財務諸表(共通のクイズエンジン)
    ========================================================= */
 function startQuiz(cat){
-  const pool = cat==='all' ? QUESTIONS : QUESTIONS.filter(q=>q.cat===cat);
-  quiz = { cat, list: shuffle(pool), idx:0, answeredIdx:null, inputAnswered:false, correctCount:0,
-           aiActive:false, aiQuestion:null, aiLoading:false, savedAnsweredIdx:null };
+  const types = currentModeTypes;
+  const pool = QUESTIONS.filter(q=> types.includes(q.type) && (cat==='all' || q.cat===cat));
+  quiz = { cat, types, modeLabel: currentModeLabel, list: shuffle(pool), idx:0, answeredIdx:null, inputAnswered:false,
+           journalAnswered:false, statementAnswered:false, statementResults:null, correctCount:0,
+           aiActive:false, aiType:null, aiQuestion:null, aiLoading:false, savedAnsweredIdx:null };
   renderQuiz();
 }
 function currentQ(){ return quiz.aiActive ? quiz.aiQuestion : quiz.list[quiz.idx]; }
 
+
 function renderQuiz(){
   const q = currentQ();
-  const isInput = q.type === 'input';
-  const answered = isInput ? quiz.inputAnswered : (quiz.answeredIdx !== null);
+  const answered =
+    q.type==='input' ? quiz.inputAnswered :
+    q.type==='journal' ? quiz.journalAnswered :
+    q.type==='statement' ? quiz.statementAnswered :
+    (quiz.answeredIdx !== null);
+
+  let bodyHtml = '';
+  if(q.type === 'input'){
+    bodyHtml = `
+      <div class="input-row">
+        <input type="text" id="inputAnswerField" inputmode="numeric" placeholder="数字を入力" ${answered?'class="locked-input" disabled':''} value="${answered? fmtNum(q.answer):''}">
+        <span class="unit">${q.unit||''}</span>
+      </div>
+      ${!answered? '<button class="btn" style="margin-bottom:10px;" onclick="answerQuizInput()">解答する</button>' : ''}`;
+  } else if(q.type === 'journal'){
+    const maxLines = Math.max(q.debits.length, q.credits.length);
+    let rowsHtml = '';
+    for(let i=0;i<maxLines;i++){
+      const d = q.debits[i], c = q.credits[i];
+      const accStyle = "width:100%;font-family:inherit;padding:6px;border:1px solid var(--line);border-radius:3px;";
+      const amtStyle = "width:90px;font-family:'JetBrains Mono',monospace;padding:6px;border:1px solid var(--line);border-radius:3px;";
+      rowsHtml += `<tr>
+        <td>${d? `<input type="text" class="jAcc${answered?' locked-input':''}" data-side="debit" data-i="${i}" placeholder="勘定科目" ${answered?'disabled':''} value="${answered? d.account:''}" style="${accStyle}">` : ''}</td>
+        <td>${d? `<input type="text" class="jAmt${answered?' locked-input':''}" data-side="debit" data-i="${i}" inputmode="numeric" placeholder="金額" ${answered?'disabled':''} value="${answered? fmtNum(d.amount):''}" style="${amtStyle}">` : ''}</td>
+        <td>${c? `<input type="text" class="jAcc${answered?' locked-input':''}" data-side="credit" data-i="${i}" placeholder="勘定科目" ${answered?'disabled':''} value="${answered? c.account:''}" style="${accStyle}">` : ''}</td>
+        <td>${c? `<input type="text" class="jAmt${answered?' locked-input':''}" data-side="credit" data-i="${i}" inputmode="numeric" placeholder="金額" ${answered?'disabled':''} value="${answered? fmtNum(c.amount):''}" style="${amtStyle}">` : ''}</td>
+      </tr>`;
+    }
+    bodyHtml = `
+      <table class="breakdown" style="margin-bottom:10px;">
+        <thead><tr><th>借方科目</th><th>金額</th><th>貸方科目</th><th>金額</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+      ${!answered? '<button class="btn" style="margin-bottom:10px;" onclick="answerQuizJournal()">解答する</button>' : ''}`;
+  } else if(q.type === 'statement'){
+    bodyHtml = `
+      <table class="breakdown" style="margin-bottom:10px;">
+        <tbody>
+          ${q.rows.map((r,i)=>`
+            <tr>
+              <td>${r.label}</td>
+              <td class="num">${r.given ? fmtNum(r.value)+'円' :
+                (answered ? `<b style="color:${quiz.statementResults && quiz.statementResults[i] ? 'var(--good)':'var(--hanko)'};">${fmtNum(r.value)}円</b>` :
+                `<input type="text" class="statement-blank" data-i="${i}" inputmode="numeric" placeholder="金額" style="width:110px;font-family:'JetBrains Mono',monospace;padding:6px;border:1px solid var(--line);border-radius:3px;text-align:right;">円`)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      ${!answered? '<button class="btn" style="margin-bottom:10px;" onclick="answerQuizStatement()">解答する</button>' : ''}`;
+  } else {
+    bodyHtml = `
+      <div class="choices" id="choicebox">
+        ${q.choices.map((c,i)=>`<button class="choice" data-i="${i}"><span class="lab">${String.fromCharCode(65+i)}</span><span>${c}</span></button>`).join('')}
+      </div>`;
+  }
+
   root.innerHTML = `
     <header class="top">
-      <div class="brand"><span class="kanji">一問一答</span><span class="sub">${quiz.cat==='all'?'全範囲':q.catName}</span></div>
+      <div class="brand"><span class="kanji">${quiz.modeLabel}</span><span class="sub">${quiz.cat==='all'?'全範囲':q.catName}</span></div>
       <button class="backbtn" onclick="goCatSelect()">← 分野選択へ</button>
     </header>
     <main>
       <div class="qcard">
         <div class="qmeta">
           <span class="catname">${q.catName}</span>
-          ${quiz.aiActive? '<span class="aitag">✨ AI生成問題</span>' : ''}
+          ${quiz.aiActive? `<span class="aitag">✨ AI生成${quiz.aiType==='journal'?'(仕訳)':'(4択)'}</span>` : ''}
           <span class="counter">${quiz.aiActive? 'ボーナス問題' : (quiz.idx+1)+' / '+quiz.list.length+' ・ 正答 '+quiz.correctCount}</span>
         </div>
         <div class="qtext">${q.q}</div>
-        ${isInput ? `
-          <div class="input-row">
-            <input type="text" id="inputAnswerField" inputmode="numeric" placeholder="数字を入力" ${answered?'class="locked-input" disabled':''} value="${answered? fmtNum(q.answer):''}">
-            <span class="unit">${q.unit||''}</span>
-          </div>
-          ${!answered? '<button class="btn" style="margin-bottom:10px;" onclick="answerQuizInput()">解答する</button>' : ''}
-        ` : `
-          <div class="choices" id="choicebox">
-            ${q.choices.map((c,i)=>`<button class="choice" data-i="${i}"><span class="lab">${String.fromCharCode(65+i)}</span><span>${c}</span></button>`).join('')}
-          </div>
-        `}
+        ${bodyHtml}
         <div class="explain" id="explainbox"></div>
         <div class="qnav">
           ${answered && !quiz.aiActive ? `<button class="btn ai-btn" ${quiz.aiLoading?'disabled':''} onclick="generateSimilar()">${quiz.aiLoading? '🤖 生成中…' : '🤖 似た問題をAIで出す'}</button>` : ''}
@@ -419,14 +661,15 @@ function renderQuiz(){
         </div>
       </div>
     </main>`;
-  if(!isInput){
+
+  if(q.type !== 'input' && q.type !== 'journal' && q.type !== 'statement'){
     document.getElementById('choicebox').querySelectorAll('.choice').forEach(btn=>{
       btn.addEventListener('click', ()=> answerQuizChoice(parseInt(btn.dataset.i)));
     });
   }
   if(answered){
     const q2 = currentQ();
-    if(!isInput){
+    if(q2.type !== 'input' && q2.type !== 'journal' && q2.type !== 'statement'){
       const buttons = document.querySelectorAll('#choicebox .choice');
       const chosen = quiz.aiActive ? quiz.aiAnsweredIdx : quiz.answeredIdx;
       buttons.forEach((b,idx)=>{
@@ -478,15 +721,88 @@ async function answerQuizInput(){
   renderQuiz();
 }
 
+function normalizeAccountName(s){
+  return (s||'').replace(/[\s　()（）]/g,'').trim();
+}
+function journalLineSetString(arr){
+  return arr.map(x=>normalizeAccountName(x.account)+':'+x.amount).sort().join('|');
+}
+
+async function answerQuizJournal(){
+  const q = currentQ();
+  const entered = { debit: [], credit: [] };
+  document.querySelectorAll('.jAcc').forEach(inp=>{
+    const side = inp.dataset.side, i = inp.dataset.i;
+    entered[side][i] = entered[side][i] || {};
+    entered[side][i].account = inp.value;
+  });
+  document.querySelectorAll('.jAmt').forEach(inp=>{
+    const side = inp.dataset.side, i = inp.dataset.i;
+    entered[side][i] = entered[side][i] || {};
+    entered[side][i].amount = parseFloat(inp.value.replace(/[,，円\s]/g,''));
+  });
+  const enteredDebits = entered.debit.filter(Boolean);
+  const enteredCredits = entered.credit.filter(Boolean);
+
+  const debitOk = journalLineSetString(enteredDebits) === journalLineSetString(q.debits);
+  const creditOk = journalLineSetString(enteredCredits) === journalLineSetString(q.credits);
+  const correct = debitOk && creditOk;
+
+  if(quiz.aiActive){ quiz.aiAnsweredIdx = correct ? 1 : 0; }
+  else { quiz.journalAnswered = true; quiz.correctCount += correct ? 1 : 0; }
+
+  const mark = (ok)=> ok ? '<span style="color:var(--good);">◯</span>' : '<span style="color:var(--hanko);">✕</span>';
+  const fmtSide = (arr)=> arr.map(x=>`${x.account} ${fmtNum(x.amount)}円`).join(' / ');
+  quiz.lastExplainHtml =
+    (correct? '<b>◯ 正解。</b> ' : '<b>✕ 不正解。</b> ') +
+    `<br>借方 ${mark(debitOk)}(正解: ${fmtSide(q.debits)})` +
+    `<br>貸方 ${mark(creditOk)}(正解: ${fmtSide(q.credits)})` +
+    `<br>${q.exp}`;
+
+  if(!quiz.aiActive){
+    const p = STATE.progress[q.cat] || {correct:0,total:0};
+    p.total += 1; if(correct) p.correct += 1;
+    STATE.progress[q.cat] = p;
+    await saveProgress(q.cat, p.correct, p.total);
+  }
+  renderQuiz();
+}
+
+
+async function answerQuizStatement(){
+  const q = currentQ();
+  const inputs = document.querySelectorAll('.statement-blank');
+  const results = {};
+  let allCorrect = true;
+  inputs.forEach(inp=>{
+    const i = parseInt(inp.dataset.i);
+    const val = parseFloat(inp.value.replace(/[,，円\s]/g,''));
+    const ok = val === q.rows[i].value;
+    results[i] = ok;
+    if(!ok) allCorrect = false;
+  });
+  quiz.statementResults = results;
+  quiz.statementAnswered = true;
+  quiz.correctCount += allCorrect ? 1 : 0;
+  quiz.lastExplainHtml = (allCorrect? '<b>◯ すべて正解。</b> ' : '<b>✕ 一部の空欄が不正解です(色つきの金額が正解です)。</b> ') + q.exp;
+
+  const p = STATE.progress[q.cat] || {correct:0,total:0};
+  p.total += 1; if(allCorrect) p.correct += 1;
+  STATE.progress[q.cat] = p;
+  await saveProgress(q.cat, p.correct, p.total);
+  renderQuiz();
+}
+
 function nextQuiz(){
   if(quiz.aiActive){
-    quiz.aiActive = false; quiz.aiQuestion = null; quiz.aiAnsweredIdx = null;
+    quiz.aiActive = false; quiz.aiType = null; quiz.aiQuestion = null; quiz.aiAnsweredIdx = null;
     quiz.answeredIdx = quiz.savedAnsweredIdx;
     renderQuiz();
     return;
   }
   if(quiz.idx < quiz.list.length-1){
     quiz.idx++; quiz.answeredIdx=null; quiz.inputAnswered=false;
+    quiz.journalAnswered=false; quiz.statementAnswered=false; quiz.statementResults=null;
     renderQuiz();
   }else{
     goHome();
@@ -498,10 +814,24 @@ async function generateSimilar(){
   quiz.savedAnsweredIdx = quiz.answeredIdx;
   quiz.aiLoading = true;
   renderQuiz();
-  const result = await fetchSimilarQuestion(base);
+  // 仕訳問題(journal)なら仕訳形式で、それ以外(mcq/input/statement)は4択で類題を作る
+  const wantJournal = base.type === 'journal';
+  const result = await fetchSimilarQuestion(base, wantJournal ? 'journal' : 'mcq');
   quiz.aiLoading = false;
-  if(result && Array.isArray(result.choices) && result.choices.length===4 && typeof result.answer==='number'){
+
+  if(wantJournal && result && Array.isArray(result.debits) && Array.isArray(result.credits) &&
+     result.debits.length>0 && result.credits.length>0){
     quiz.aiActive = true;
+    quiz.aiType = 'journal';
+    quiz.aiAnsweredIdx = null;
+    quiz.aiQuestion = {
+      cat: base.cat, catName: base.catName, type:'journal', q: result.question,
+      debits: result.debits, credits: result.credits,
+      exp: result.explanation || ''
+    };
+  } else if(!wantJournal && result && Array.isArray(result.choices) && result.choices.length===4 && typeof result.answer==='number'){
+    quiz.aiActive = true;
+    quiz.aiType = 'mcq';
     quiz.aiAnsweredIdx = null;
     quiz.aiQuestion = { cat: base.cat, catName: base.catName, type:'mcq', q: result.question, choices: result.choices, ans: result.answer, exp: result.explanation || '' };
   } else {
@@ -510,12 +840,12 @@ async function generateSimilar(){
   renderQuiz();
 }
 
-async function fetchSimilarQuestion(baseQ){
+async function fetchSimilarQuestion(baseQ, wantType){
   try{
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ catName: baseQ.catName, question: baseQ.q })
+      body: JSON.stringify({ catName: baseQ.catName, question: baseQ.q, qtype: wantType || 'mcq' })
     });
     if(!res.ok) return null;
     return await res.json();
@@ -539,11 +869,20 @@ function tickExam(){
   if(exam.seconds<=0){ clearInterval(exam.timerId); finishExam(); }
 }
 function fmtTime(s){ const m = Math.floor(s/60), sec = s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+function exitExam(){
+  if(!confirm('模擬試験を中断してホームへ戻りますか?(この回の結果は記録されません)')) return;
+  if(exam && exam.timerId) clearInterval(exam.timerId);
+  exam = null;
+  goHome();
+}
 function renderExam(){
   const q = exam.list[exam.idx];
   const chosen = exam.answers[exam.idx];
   root.innerHTML = `
-    <header class="top"><div class="brand"><span class="kanji">模擬試験</span><span class="sub">全範囲・20問</span></div></header>
+    <header class="top">
+      <div class="brand"><span class="kanji">模擬試験</span><span class="sub">全範囲・20問</span></div>
+      <button class="backbtn" onclick="exitExam()">✕ 中断してホームへ</button>
+    </header>
     <main>
       <div class="exam-head"><span style="font-size:12px;color:var(--ink-soft);">残り時間</span><span class="timer" id="examtimer">${fmtTime(exam.seconds)}</span></div>
       <div class="dots">${exam.list.map((_,i)=>`<span class="dot ${exam.answers[i]!==null?'answered':''} ${i===exam.idx?'current':''}" onclick="jumpExam(${i})" style="cursor:pointer;"></span>`).join('')}</div>
@@ -701,10 +1040,14 @@ window.goHome = goHome;
 window.startQuiz = startQuiz;
 window.nextQuiz = nextQuiz;
 window.generateSimilar = generateSimilar;
+window.answerQuizJournal = answerQuizJournal;
+window.answerQuizStatement = answerQuizStatement;
+window.answerQuizInput = answerQuizInput;
 window.startExam = startExam;
 window.chooseExam = chooseExam;
 window.jumpExam = jumpExam;
 window.confirmFinishExam = confirmFinishExam;
+window.exitExam = exitExam;
 window.reviewExam = reviewExam;
 window.goVocabModeSelect = goVocabModeSelect;
 window.startVocab = startVocab;
