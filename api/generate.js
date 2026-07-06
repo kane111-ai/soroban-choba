@@ -42,9 +42,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { catName, question, qtype } = req.body || {};
-  if (!catName || !question) {
-    return res.status(400).json({ error: 'catName and question are required' });
+  const { catName, question, qtype, fresh } = req.body || {};
+  if (!catName) {
+    return res.status(400).json({ error: 'catName is required' });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -55,15 +55,17 @@ export default async function handler(req, res) {
   const isJournal = qtype === 'journal';
 
   const systemInstruction = isJournal
-    ? 'あなたは日商簿記3級の問題作成者です。与えられた元の問題と同じ分野・同程度の難易度の「仕訳問題」を1問だけ作成してください。' +
-      '数値や勘定科目の組み合わせは変えてください。debitsとcreditsはそれぞれ1〜3行程度の配列で出力し、' +
+    ? 'あなたは日商簿記3級の問題作成者です。指定された分野の「仕訳問題」を1問だけ作成してください。' +
+      'debitsとcreditsはそれぞれ1〜3行程度の配列で出力し、' +
       '各行はaccount(勘定科目名)とamount(金額)を持つオブジェクトにしてください。借方の金額合計と貸方の金額合計は必ず一致させてください。' +
       '出力は指定されたJSON形式のみとし、前置きなどの文章は一切含めないでください。'
-    : 'あなたは日商簿記3級の問題作成者です。与えられた元の問題と同じ分野・同程度の難易度の類似問題を1問だけ作成してください。' +
-      '数値や勘定科目の組み合わせは変えてください。出力は指定されたJSON形式のみとし、前置きなどの文章は一切含めないでください。' +
+    : 'あなたは日商簿記3級の問題作成者です。指定された分野の4択問題を1問だけ作成してください。' +
+      '出力は指定されたJSON形式のみとし、前置きなどの文章は一切含めないでください。' +
       'answerには正解の選択肢のインデックス(0始まり)を数値で入れてください。';
 
-  const userPrompt = `分野: ${catName}\n元の問題: ${question}\n上記と同分野・同難易度の類似問題をJSON形式で1問作成してください。`;
+  const userPrompt = question
+    ? `分野: ${catName}\n元の問題: ${question}\n上記と同分野・同難易度の類似問題をJSON形式で1問作成してください。`
+    : `分野: ${catName}\n日商簿記3級レベルの新しい問題をJSON形式で1問作成してください。過去に出したものと重複しないよう、数値や状況設定に工夫を加えてください。`;
 
   try {
     const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
