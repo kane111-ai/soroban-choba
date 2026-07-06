@@ -145,6 +145,13 @@
   .lesson-body li{margin-bottom:7px;}
   .lesson-body b{color:var(--ink);}
   .lesson-nav{display:flex;justify-content:space-between;gap:8px;margin-top:16px;}
+
+  .gloss-cat{font-family:'Shippori Mincho',serif;font-size:14px;color:var(--ink);margin:20px 0 8px;display:flex;align-items:center;gap:8px;}
+  .gloss-cat:before{content:"";width:14px;height:1px;background:var(--gold);display:inline-block;}
+  .gloss-item{background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-bottom:7px;}
+  .gloss-item .term{font-family:'Shippori Mincho',serif;font-size:14.5px;color:var(--ink);margin-bottom:3px;}
+  .gloss-item .def{font-size:12.5px;color:var(--ink-soft);line-height:1.65;}
+  .gloss-search{width:100%;font-family:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--paper-white);color:var(--ink);margin-bottom:16px;}
 </style>
 </head>
 <body>
@@ -423,24 +430,93 @@ const QUESTIONS = [
 ];
 
 const VOCAB = [
-  {id:1,term:"仕訳",def:"取引を借方・貸方に分けて記録する手続き"},
-  {id:2,term:"転記",def:"仕訳帳の記録を総勘定元帳の各勘定口座に書き写すこと"},
-  {id:3,term:"総勘定元帳",def:"勘定科目ごとに金額を集計・記録する帳簿"},
-  {id:4,term:"試算表",def:"総勘定元帳の借方・貸方合計を一覧にして転記ミスを確認する表"},
-  {id:5,term:"精算表",def:"試算表から決算整理を経て損益計算書・貸借対照表を作成する過程をまとめた表"},
-  {id:6,term:"決算整理",def:"当期の損益を正しく計算するために行う修正手続き"},
-  {id:7,term:"期首",def:"会計期間のはじまりの日"},
-  {id:8,term:"決算日(期末)",def:"会計期間の最後の日"},
-  {id:9,term:"会計期間",def:"損益や財産の状況を計算する一定の期間"},
-  {id:10,term:"三分法",def:"商品売買を仕入・売上・繰越商品の3つの勘定で処理する方法"},
-  {id:11,term:"差額補充法",def:"貸倒引当金の設定額と既存残高の差額のみを繰り入れる方法"},
-  {id:12,term:"先入先出法",def:"先に仕入れた商品から先に払い出したと仮定して単価を計算する方法"},
-  {id:13,term:"移動平均法",def:"仕入れのたびに残高全体の平均単価を計算し直す方法"},
-  {id:14,term:"資本的支出",def:"固定資産の価値を高める支出で、取得原価に加算する"},
-  {id:15,term:"収益的支出",def:"固定資産の原状を回復するための支出で、費用として処理する"},
-  {id:16,term:"インプレストシステム",def:"小口現金などを一定額に保つよう前渡しする定額資金前渡制度"},
-  {id:17,term:"三伝票制",def:"入金伝票・出金伝票・振替伝票の3種類で取引を起票する制度"},
-  {id:18,term:"当座借越",def:"当座預金の残高を超えて小切手を振り出した場合に生じるマイナス残高"},
+  // --- 基礎・全体像 ---
+  {id:1,cat:"基礎",term:"簿記",def:"取引を一定のルールで帳簿に記録していく技術。「帳簿記入」の略。"},
+  {id:2,cat:"基礎",term:"取引",def:"資産・負債・純資産・費用・収益に増減をもたらす、簿記で記録すべきできごと。"},
+  {id:3,cat:"基礎",term:"仕訳",def:"取引を借方(左)・貸方(右)に分けて記録する手続き。"},
+  {id:4,cat:"基礎",term:"勘定科目",def:"現金・売上などの、金額を記録する項目の名前。"},
+  {id:5,cat:"基礎",term:"借方",def:"仕訳の左側。資産の増加・費用の発生などを記入する。"},
+  {id:6,cat:"基礎",term:"貸方",def:"仕訳の右側。負債・純資産・収益の増加などを記入する。"},
+  {id:7,cat:"基礎",term:"転記",def:"仕訳帳の記録を総勘定元帳の各勘定口座に書き写すこと。"},
+  {id:8,cat:"基礎",term:"総勘定元帳",def:"勘定科目ごとに金額を集計・記録する主要な帳簿。"},
+  {id:9,cat:"基礎",term:"仕訳帳",def:"取引を日付順に仕訳して記録する主要な帳簿。"},
+  {id:10,cat:"基礎",term:"資産",def:"現金・売掛金・備品など、会社が持っているプラスの財産。"},
+  {id:11,cat:"基礎",term:"負債",def:"買掛金・借入金など、将来支払う義務のあるもの。"},
+  {id:12,cat:"基礎",term:"純資産(資本)",def:"資産から負債を差し引いた正味の財産。資本金など。"},
+  {id:13,cat:"基礎",term:"費用",def:"仕入・給料など、収益を得るために使ったお金。"},
+  {id:14,cat:"基礎",term:"収益",def:"売上・受取利息など、営業活動で得たもうけ。"},
+
+  // --- 商品売買 ---
+  {id:15,cat:"商品売買",term:"三分法",def:"商品売買を仕入・売上・繰越商品の3つの勘定で処理する方法。"},
+  {id:16,cat:"商品売買",term:"掛け",def:"代金の後払いのこと。売れば売掛金、買えば買掛金が生じる。"},
+  {id:17,cat:"商品売買",term:"売掛金",def:"商品を掛けで販売したときの、まだ回収していない代金(資産)。"},
+  {id:18,cat:"商品売買",term:"買掛金",def:"商品を掛けで仕入れたときの、まだ支払っていない代金(負債)。"},
+  {id:19,cat:"商品売買",term:"クレジット売掛金",def:"クレジット払いで販売したときに信販会社に対して生じる債権。"},
+  {id:20,cat:"商品売買",term:"仕入戻し",def:"仕入れた商品を返品すること。仕入の逆仕訳で取り消す。"},
+  {id:21,cat:"商品売買",term:"発送費",def:"商品発送にかかる運賃を自己負担したときの費用。"},
+
+  // --- 現金・預金 ---
+  {id:22,cat:"現金・預金",term:"当座預金",def:"小切手を振り出すために使う、利息のつかない預金。"},
+  {id:23,cat:"現金・預金",term:"当座借越",def:"当座預金の残高を超えて小切手を振り出したときに生じるマイナス残高。"},
+  {id:24,cat:"現金・預金",term:"現金過不足",def:"帳簿上の現金と実際有高のズレを一時的に受けておく勘定。"},
+  {id:25,cat:"現金・預金",term:"雑損",def:"原因不明の現金不足などを決算で処理する費用。"},
+  {id:26,cat:"現金・預金",term:"雑益",def:"原因不明の現金過剰などを決算で処理する収益。"},
+  {id:27,cat:"現金・預金",term:"小口現金",def:"少額の支払い用に係の人へ前渡ししておく現金。"},
+  {id:28,cat:"現金・預金",term:"インプレストシステム",def:"小口現金などを一定額に保つよう前渡しする定額資金前渡制度。"},
+
+  // --- 手形・債権債務 ---
+  {id:29,cat:"手形",term:"約束手形",def:"「いつまでにいくら払う」と約束する証券。"},
+  {id:30,cat:"手形",term:"受取手形",def:"手形を受け取った側が計上する資産。"},
+  {id:31,cat:"手形",term:"支払手形",def:"手形を振り出した側が計上する負債。"},
+  {id:32,cat:"手形",term:"手形の割引",def:"満期前の手形を銀行に持ち込んで現金化すること。"},
+  {id:33,cat:"手形",term:"手形売却損",def:"手形を割り引いたときに差し引かれる利息分の費用。"},
+  {id:34,cat:"手形",term:"電子記録債権",def:"手形の電子版ともいえる、受け取る側の債権(資産)。"},
+
+  // --- 貸倒れ ---
+  {id:35,cat:"貸倒れ",term:"貸倒れ",def:"取引先の倒産などで売掛金が回収できなくなること。"},
+  {id:36,cat:"貸倒れ",term:"貸倒引当金",def:"将来の貸倒れに備えて決算で見積り計上しておく金額。"},
+  {id:37,cat:"貸倒れ",term:"差額補充法",def:"貸倒引当金の設定額と既存残高の差額のみを繰り入れる方法。"},
+  {id:38,cat:"貸倒れ",term:"貸倒損失",def:"当期発生分の貸倒れや、引当金で足りない分を処理する費用。"},
+
+  // --- 固定資産 ---
+  {id:39,cat:"固定資産",term:"取得原価",def:"固定資産を買ったときの本体価格に付随費用を加えた金額。"},
+  {id:40,cat:"固定資産",term:"減価償却",def:"固定資産の価値の減少を毎年少しずつ費用にしていく手続き。"},
+  {id:41,cat:"固定資産",term:"定額法",def:"(取得原価−残存価額)÷耐用年数で毎年同額を償却する方法。"},
+  {id:42,cat:"固定資産",term:"減価償却累計額",def:"間接法で、これまでの減価償却費の合計をためておく勘定。"},
+  {id:43,cat:"固定資産",term:"資本的支出",def:"固定資産の価値を高める支出で、取得原価に加算する。"},
+  {id:44,cat:"固定資産",term:"収益的支出",def:"固定資産の原状を回復するための支出で、修繕費として費用処理する。"},
+
+  // --- 経過勘定・決算 ---
+  {id:45,cat:"決算",term:"決算整理",def:"当期の損益を正しく計算するために行う修正手続き。"},
+  {id:46,cat:"決算",term:"会計期間",def:"損益や財産の状況を計算する一定の期間。"},
+  {id:47,cat:"決算",term:"期首",def:"会計期間のはじまりの日。"},
+  {id:48,cat:"決算",term:"決算日(期末)",def:"会計期間の最後の日。締め日。"},
+  {id:49,cat:"決算",term:"前払費用",def:"当期に払った費用のうち、来期分を繰り延べた資産。"},
+  {id:50,cat:"決算",term:"未払費用",def:"当期の費用なのに、まだ払っていない分を計上した負債。"},
+  {id:51,cat:"決算",term:"前受収益",def:"当期に受け取った収益のうち、来期分を繰り延べた負債。"},
+  {id:52,cat:"決算",term:"未収収益",def:"当期の収益なのに、まだ受け取っていない分を計上した資産。"},
+  {id:53,cat:"決算",term:"試算表",def:"総勘定元帳の借方・貸方合計を一覧にして転記ミスを確認する表。"},
+  {id:54,cat:"決算",term:"精算表",def:"試算表から決算整理を経て財務諸表を作成する過程をまとめた表。"},
+  {id:55,cat:"決算",term:"損益計算書",def:"1年間の費用と収益を集めて、もうけを計算する表(P/L)。"},
+  {id:56,cat:"決算",term:"貸借対照表",def:"決算日時点の資産・負債・純資産を並べた表(B/S)。"},
+  {id:57,cat:"決算",term:"先入先出法",def:"先に仕入れた商品から先に払い出したと仮定して単価を計算する方法。"},
+  {id:58,cat:"決算",term:"移動平均法",def:"仕入れのたびに残高全体の平均単価を計算し直す方法。"},
+
+  // --- 帳簿・伝票 ---
+  {id:59,cat:"帳簿・伝票",term:"三伝票制",def:"入金伝票・出金伝票・振替伝票の3種類で取引を起票する制度。"},
+  {id:60,cat:"帳簿・伝票",term:"振替伝票",def:"現金の収支をともなわない取引を起票する伝票。"},
+  {id:61,cat:"帳簿・伝票",term:"補助簿",def:"特定の勘定の明細を記録する、主要簿を補う帳簿。"},
+  {id:62,cat:"帳簿・伝票",term:"商品有高帳",def:"商品の受入・払出・残高を記録する補助簿。"},
+
+  // --- 会社・税金 ---
+  {id:63,cat:"会社・税金",term:"資本金",def:"株主から払い込まれた元手。原則、払込額の全額を計上する。"},
+  {id:64,cat:"会社・税金",term:"繰越利益剰余金",def:"過去のもうけの蓄積で、配当の財源にもなる純資産。"},
+  {id:65,cat:"会社・税金",term:"利益準備金",def:"配当時に会社法により積み立てが義務づけられている準備金。"},
+  {id:66,cat:"会社・税金",term:"仮払消費税",def:"税抜方式で、仕入時などに支払った消費税(資産)。"},
+  {id:67,cat:"会社・税金",term:"仮受消費税",def:"税抜方式で、販売時などに受け取った消費税(負債)。"},
+  {id:68,cat:"会社・税金",term:"仮払法人税等",def:"法人税の中間納付額を一時的に計上する資産。"},
+  {id:69,cat:"会社・税金",term:"租税公課",def:"固定資産税や印紙税など、事業にかかる税金を処理する費用。"},
+  {id:70,cat:"会社・税金",term:"法定福利費",def:"会社が負担する社会保険料などを処理する費用。"},
 ];
 
 /* =========================================================
@@ -647,6 +723,10 @@ function renderHome(){
         <button class="mode-card" onclick="goLessons()">
           <div class="tag">MODE 07</div><h3>解説を読む</h3>
           <p>簿記とは何か、から超基礎で。問題を解く前の教科書パート。</p>
+        </button>
+        <button class="mode-card" onclick="goGlossary()">
+          <div class="tag">MODE 08</div><h3>用語集</h3>
+          <p>簿記3級の用語を分野ごとに一覧で。辞典のように読める。</p>
         </button>
       </div>
       <div class="section-title">分野別 定着度</div>
@@ -1380,6 +1460,38 @@ async function answerAIQuizJournal(){
 }
 
 /* =========================================================
+   用語集(GLOSSARY): VOCABを分野ごとに一覧表示 + 検索
+   ========================================================= */
+function goGlossary(){
+  renderGlossary('');
+}
+function renderGlossary(keyword){
+  const kw = (keyword||'').trim();
+  const filtered = kw ? VOCAB.filter(v=> v.term.includes(kw) || v.def.includes(kw)) : VOCAB;
+  const cats = [...new Set(filtered.map(v=>v.cat))];
+  const listHtml = filtered.length ? cats.map(cat=>`
+    <div class="gloss-cat">${cat}</div>
+    ${filtered.filter(v=>v.cat===cat).map(v=>`
+      <div class="gloss-item"><div class="term">${v.term}</div><div class="def">${v.def}</div></div>`).join('')}
+  `).join('') : `<p style="font-size:13px;color:var(--ink-soft);text-align:center;padding:20px;">「${kw}」に一致する用語は見つかりませんでした。</p>`;
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">用語集</span><span class="sub">簿記3級 用語辞典</span></div>
+      <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
+    <main>
+      <input type="text" class="gloss-search" id="glossSearch" placeholder="用語や説明を検索(例: 手形、掛け)" value="${kw}">
+      <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 8px;">全 ${VOCAB.length} 語${kw?` ・ 「${kw}」で ${filtered.length} 件`:''}</p>
+      ${listHtml}
+    </main>`;
+  const box = document.getElementById('glossSearch');
+  box.addEventListener('input', ()=>{
+    const pos = box.selectionStart;
+    renderGlossary(box.value);
+    const nb = document.getElementById('glossSearch');
+    if(nb){ nb.focus(); try{ nb.setSelectionRange(pos,pos); }catch(e){} }
+  });
+}
+
+/* =========================================================
    解説を読む(LESSONS)
    ========================================================= */
 function goLessons(){
@@ -1442,6 +1554,7 @@ window.answerVocabType = answerVocabType;
 window.nextVocab = nextVocab;
 window.goLessons = goLessons;
 window.readLesson = readLesson;
+window.goGlossary = goGlossary;
 
 init();
 </script>
