@@ -130,6 +130,21 @@
   .history-item b{color:var(--ink);font-family:'JetBrains Mono',monospace;}
   .loading{text-align:center;padding:40px;color:var(--ink-soft);font-size:13px;}
   .spinner-line{font-size:12px;color:var(--ai);font-family:'JetBrains Mono',monospace;}
+
+  .lesson-list{display:flex;flex-direction:column;gap:8px;}
+  .lesson-row{background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:14px 16px;cursor:pointer;font-family:inherit;text-align:left;display:flex;gap:12px;align-items:flex-start;}
+  .lesson-row:hover{border-color:var(--gold);}
+  .lesson-row .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);flex-shrink:0;margin-top:2px;}
+  .lesson-row h3{font-family:'Shippori Mincho',serif;font-size:15px;margin:0 0 3px;color:var(--ink);}
+  .lesson-row p{font-size:11.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+  .lesson-body{background:var(--paper-white);border:1px solid var(--line);border-radius:4px;padding:22px 20px;font-size:14.5px;line-height:1.9;color:var(--ink);}
+  .lesson-body h2{font-family:'Shippori Mincho',serif;font-size:19px;margin:0 0 4px;}
+  .lesson-body .lead{font-size:12.5px;color:var(--gold);margin-bottom:18px;letter-spacing:.04em;}
+  .lesson-body p{margin:0 0 14px;}
+  .lesson-body ul{margin:0 0 14px;padding-left:20px;}
+  .lesson-body li{margin-bottom:7px;}
+  .lesson-body b{color:var(--ink);}
+  .lesson-nav{display:flex;justify-content:space-between;gap:8px;margin-top:16px;}
 </style>
 </head>
 <body>
@@ -428,6 +443,109 @@ const VOCAB = [
   {id:18,term:"当座借越",def:"当座預金の残高を超えて小切手を振り出した場合に生じるマイナス残高"},
 ];
 
+/* =========================================================
+   解説(LESSONS): 読み物パート。bodyはHTML文字列。
+   ========================================================= */
+const LESSONS = [
+  {id:"l1", title:"そもそも簿記とは?", lead:"帳簿づけの仕組みを、いちばん最初から。",
+   body:`
+    <p><b>簿記(ぼき)</b>とは、お店や会社が行うお金や商品のやりとり(=取引)を、決まったルールで帳簿に記録していく技術のことです。「帳簿記入」を略して簿記と呼びます。</p>
+    <p>なぜ記録するのか?理由は大きく2つです。</p>
+    <ul>
+      <li><b>もうけを計算するため</b>:1年間でいくら利益が出たのかを知る。税金もこの利益をもとに計算されます。</li>
+      <li><b>財産の状況を知るため</b>:今いくら現金があり、いくら借金があるのかを把握する。</li>
+    </ul>
+    <p>この2つをまとめた書類が、後で出てくる<b>損益計算書</b>(もうけの一覧)と<b>貸借対照表</b>(財産の一覧)です。簿記のゴールは、最終的にこの2つを作ることだと思ってください。</p>`},
+
+  {id:"l2", title:"簿記の1年の流れ", lead:"日々→月ごと→1年ごと。全体像をつかむ。",
+   body:`
+    <p>簿記の作業は、行うタイミングで3つに分かれます。まずこの流れの全体像を頭に入れると、今やっていることが迷子になりません。</p>
+    <p><b>(1) 日々やること</b><br>取引が起きるたびに<b>仕訳(しわけ)</b>をして、それを<b>総勘定元帳(そうかんじょうもとちょう)</b>という帳簿に<b>転記(てんき)</b>します。</p>
+    <p><b>(2) 1か月ごとにやること</b><br><b>試算表(しさんひょう)</b>を作り、転記のミスがないかチェックします。</p>
+    <p><b>(3) 1年ごとにやること(決算)</b><br>1年の締めに<b>決算整理</b>という修正をして、最終的に<b>損益計算書</b>と<b>貸借対照表</b>を作ります。</p>
+    <p>まとめると:<br>取引 → 仕訳 → 転記 → 試算表 → 決算整理 → 財務諸表の作成 → 帳簿の締切、という一本道です。</p>`},
+
+  {id:"l3", title:"仕訳の考え方(借方・貸方)", lead:"簿記でいちばん大事な心臓部。",
+   body:`
+    <p><b>仕訳</b>とは、1つの取引を「左側」と「右側」に分けて書くことです。簿記では左側を<b>借方(かりかた)</b>、右側を<b>貸方(かしかた)</b>と呼びます。読み方に深い意味はなく、「左=借方、右=貸方」と割り切って覚えてOKです。</p>
+    <p>すべての勘定科目は、次の5つのグループのどれかに属します。</p>
+    <ul>
+      <li><b>資産</b>:現金・預金・売掛金・備品など(持っていると嬉しいもの)</li>
+      <li><b>負債</b>:買掛金・借入金など(いつか返すもの)</li>
+      <li><b>純資産(資本)</b>:資本金・繰越利益剰余金など(元手ともうけの蓄積)</li>
+      <li><b>費用</b>:仕入・給料・支払家賃など(もうけるために出ていくお金)</li>
+      <li><b>収益</b>:売上・受取利息など(入ってくるもうけ)</li>
+    </ul>
+    <p>そして、増えたときにどちら側に書くかがグループごとに決まっています。これが仕訳のすべての土台です。</p>
+    <ul>
+      <li><b>資産</b>:増えたら<b>借方(左)</b> / 減ったら貸方(右)</li>
+      <li><b>費用</b>:発生したら<b>借方(左)</b></li>
+      <li><b>負債</b>:増えたら<b>貸方(右)</b> / 減ったら借方(左)</li>
+      <li><b>純資産</b>:増えたら<b>貸方(右)</b></li>
+      <li><b>収益</b>:発生したら<b>貸方(右)</b></li>
+    </ul>
+    <p>例:「商品200円を売って現金を受け取った」<br>→ 現金(資産)が増えた=借方に現金200 / 売上(収益)が発生した=貸方に売上200。<br>借方と貸方の金額は<b>必ず一致</b>します(これを貸借平均の原理といいます)。</p>`},
+
+  {id:"l4", title:"商品売買(三分法)", lead:"仕入・売上・繰越商品の3つで管理する。",
+   body:`
+    <p>3級では商品売買を<b>三分法(さんぶんぽう)</b>で処理します。商品のやりとりを<b>仕入</b>(費用)・<b>売上</b>(収益)・<b>繰越商品</b>(資産)の3つの勘定に分けて記録する方法です。</p>
+    <p><b>仕入れたとき</b>:借方に「仕入」。代金が掛け(後払い)なら貸方は「買掛金」。<br><b>売ったとき</b>:貸方に「売上」。代金が掛けなら借方は「売掛金」。</p>
+    <p><b>掛け(かけ)</b>とは代金の後払いのことです。売った側の未回収の代金は<b>売掛金</b>(資産)、買った側の未払いの代金は<b>買掛金</b>(負債)になります。</p>
+    <p>返品されたら、売ったとき・仕入れたときと逆の仕訳をして取り消します(仕入戻し・売上戻り)。</p>`},
+
+  {id:"l5", title:"現金と預金のあれこれ", lead:"小切手・当座預金・現金過不足・小口現金。",
+   body:`
+    <p><b>他人が振り出した小切手</b>を受け取ったら、簿記では<b>現金</b>として扱います(すぐ銀行でお金にできるため)。</p>
+    <p><b>当座預金</b>は小切手を振り出すための預金です。残高を超えて小切手を振り出せる契約を<b>当座借越</b>といいます。</p>
+    <p><b>現金過不足</b>:帳簿の現金残高と、実際に数えた現金がズレることがあります。原因が分かるまで一時的に「現金過不足」という勘定で受けておき、決算までに原因不明なら<b>雑損</b>(不足)または<b>雑益</b>(過剰)に振り替えます。</p>
+    <p><b>小口現金</b>:こまかい支払い用に、あらかじめ一定額を係の人に前渡ししておく仕組み(<b>定額資金前渡制度/インプレストシステム</b>)。使った分を後で補給して、常に一定額に保ちます。</p>`},
+
+  {id:"l6", title:"手形と電子記録債権", lead:"約束手形の受取・振出、割引まで。",
+   body:`
+    <p><b>約束手形</b>は「いつまでにいくら払います」と約束する証券です。</p>
+    <ul>
+      <li>手形を<b>受け取った</b>側 → <b>受取手形</b>(資産)</li>
+      <li>手形を<b>振り出した</b>(発行した)側 → <b>支払手形</b>(負債)</li>
+    </ul>
+    <p><b>手形の割引</b>:満期前に銀行に持ち込んで現金化することです。差し引かれる利息分は<b>手形売却損</b>という費用で処理します。</p>
+    <p><b>電子記録債権/債務</b>:手形の電子版のようなもの。受け取る権利は<b>電子記録債権</b>(資産)、支払う義務は<b>電子記録債務</b>(負債)です。</p>`},
+
+  {id:"l7", title:"貸倒れと貸倒引当金", lead:"回収できなくなった売掛金の扱い。",
+   body:`
+    <p>取引先の倒産などで売掛金が回収できなくなることを<b>貸倒れ(かしだおれ)</b>といいます。</p>
+    <p>将来の貸倒れに備えて、決算であらかじめ見積り計上しておくのが<b>貸倒引当金</b>です。よく使うのが<b>差額補充法</b>:設定したい金額と、すでにある引当金残高との<b>差額だけ</b>を繰り入れます。</p>
+    <p>例:売掛金500,000円に2%(=10,000円)を設定したい。すでに引当金が4,000円ある → 差額の6,000円だけを「貸倒引当金繰入」として計上します。</p>
+    <p>実際に貸し倒れたときは、<b>前期に発生した売掛金</b>なら引当金を取り崩し、引当金が足りない分や<b>当期発生分</b>の貸倒れは<b>貸倒損失</b>で処理します。</p>`},
+
+  {id:"l8", title:"固定資産と減価償却", lead:"備品や建物を買って、毎年少しずつ費用化。",
+   body:`
+    <p>長く使う備品・建物・車両などを<b>固定資産</b>といいます。買ったときの<b>取得原価</b>には、本体価格だけでなく設置費用や手数料などの<b>付随費用</b>も含めます。</p>
+    <p><b>減価償却</b>:固定資産は使ううちに価値が減るので、その分を毎年少しずつ費用にしていきます。3級では<b>定額法</b>を使います。<br>年間の減価償却費 = (取得原価 − 残存価額) ÷ 耐用年数。</p>
+    <p>例:取得原価300,000円、残存価額0、耐用年数5年 → 毎年 300,000 ÷ 5 = 60,000円が減価償却費。</p>
+    <p>記帳方法には、資産から直接減らす<b>直接法</b>と、「減価償却累計額」という勘定にためていく<b>間接法</b>があります。売却したときは、帳簿価額と売却額の差が<b>固定資産売却損(益)</b>になります。</p>`},
+
+  {id:"l9", title:"経過勘定(前払い・未払いなど)", lead:"当期のもうけを正しくするための調整。",
+   body:`
+    <p>費用や収益には、支払った(受け取った)タイミングと、実際にサービスを使った期間がズレるものがあります。これを決算で調整するのが<b>経過勘定</b>です。4つのパターンがあります。</p>
+    <ul>
+      <li><b>前払費用</b>(例:前払家賃):当期に払った費用のうち<b>来期の分</b>を資産として繰り延べる。</li>
+      <li><b>未払費用</b>(例:未払利息):当期の費用なのに<b>まだ払っていない</b>分を負債として計上する。</li>
+      <li><b>前受収益</b>(例:前受地代):当期に受け取った収益のうち<b>来期の分</b>を負債として繰り延べる。</li>
+      <li><b>未収収益</b>(例:未収家賃):当期の収益なのに<b>まだ受け取っていない</b>分を資産として計上する。</li>
+    </ul>
+    <p>ポイントは「お金の動き」ではなく「その期間のものかどうか」で当期のもうけを区切ることです。</p>`},
+
+  {id:"l10", title:"決算と財務諸表", lead:"1年を締めて、2つの表を完成させる。",
+   body:`
+    <p>1年の最後の日を<b>決算日(期末)</b>、最初の日を<b>期首</b>、その1年間を<b>会計期間</b>といいます。</p>
+    <p>決算では、まず<b>試算表</b>で転記ミスをチェックし、次に<b>決算整理</b>(減価償却・貸倒引当金・経過勘定・売上原価の計算など)を行います。その過程を1枚にまとめた集計用紙が<b>精算表</b>です。</p>
+    <p>最後に、2つの<b>財務諸表</b>を作ります。</p>
+    <ul>
+      <li><b>損益計算書(P/L)</b>:1年間の<b>費用と収益</b>を集めて、もうけ(当期純利益)を計算する表。</li>
+      <li><b>貸借対照表(B/S)</b>:決算日時点の<b>資産・負債・純資産</b>を並べた表。「資産 = 負債 + 純資産」が必ず成り立ちます。</li>
+    </ul>
+    <p>ここまで来たら簿記の1年は完了。あとは帳簿を締め切って、翌年へ進みます。この教科書を読んだら、あとは各モードで実際に手を動かして慣れていきましょう。</p>`},
+];
 const CATS = [...new Map(QUESTIONS.map(q=>[q.cat,q.catName])).entries()];
 
 /* =========================================================
@@ -525,6 +643,10 @@ function renderHome(){
         <button class="mode-card" onclick="goAIMode()">
           <div class="tag">MODE 06</div><h3>AI問題</h3>
           <p>過去問ベースではなく、AIがゼロから新しい問題を作り続ける。</p>
+        </button>
+        <button class="mode-card" onclick="goLessons()">
+          <div class="tag">MODE 07</div><h3>解説を読む</h3>
+          <p>簿記とは何か、から超基礎で。問題を解く前の教科書パート。</p>
         </button>
       </div>
       <div class="section-title">分野別 定着度</div>
@@ -1258,6 +1380,46 @@ async function answerAIQuizJournal(){
 }
 
 /* =========================================================
+   解説を読む(LESSONS)
+   ========================================================= */
+function goLessons(){
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">解説を読む</span><span class="sub">簿記3級 教科書</span></div>
+      <button class="backbtn" onclick="goHome()">← 帳場へ戻る</button></header>
+    <main>
+      <div class="hero">
+        <h1>問題を解く前に、まずここから。</h1>
+        <p>簿記とは何かという話から、各分野の要点まで。上から順に読むのがおすすめです。</p>
+      </div>
+      <div class="lesson-list">
+        ${LESSONS.map((l,i)=>`
+          <button class="lesson-row" onclick="readLesson(${i})">
+            <span class="num">${String(i+1).padStart(2,'0')}</span>
+            <span><h3>${l.title}</h3><p>${l.lead}</p></span>
+          </button>`).join('')}
+      </div>
+    </main>`;
+}
+
+function readLesson(i){
+  const l = LESSONS[i];
+  const prev = i>0 ? `<button class="btn ghost" onclick="readLesson(${i-1})">← ${LESSONS[i-1].title}</button>` : '<span></span>';
+  const next = i<LESSONS.length-1 ? `<button class="btn" onclick="readLesson(${i+1})">${LESSONS[i+1].title} →</button>` : `<button class="btn hanko-btn" onclick="goHome()">読み終えた</button>`;
+  root.innerHTML = `
+    <header class="top"><div class="brand"><span class="kanji">解説を読む</span><span class="sub">${i+1} / ${LESSONS.length}</span></div>
+      <button class="backbtn" onclick="goLessons()">← 目次へ</button></header>
+    <main>
+      <div class="lesson-body">
+        <h2>${l.title}</h2>
+        <div class="lead">${l.lead}</div>
+        ${l.body}
+      </div>
+      <div class="lesson-nav">${prev}${next}</div>
+    </main>`;
+  window.scrollTo(0,0);
+}
+
+/* =========================================================
    ルーター / グローバル公開
    ========================================================= */
 window.goCatSelect = goCatSelect;
@@ -1278,6 +1440,8 @@ window.goVocabModeSelect = goVocabModeSelect;
 window.startVocab = startVocab;
 window.answerVocabType = answerVocabType;
 window.nextVocab = nextVocab;
+window.goLessons = goLessons;
+window.readLesson = readLesson;
 
 init();
 </script>
